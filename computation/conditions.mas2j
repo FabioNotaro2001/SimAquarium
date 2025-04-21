@@ -1,0 +1,10 @@
+MAS conditions {
+
+	infrastructure: Centralised
+
+	agents:
+		agent7 conditional_agent;
+
+	aslSourcePath:
+		"src/main/asl";
+}

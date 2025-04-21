@@ -1,0 +1,10 @@
+MAS whileIteration {
+
+	infrastructure: Centralised
+
+	agents:
+		agent2 while_iterative_agent;
+
+	aslSourcePath:
+		"src/main/asl";
+}

@@ -1,0 +1,10 @@
+MAS computation {
+
+	infrastructure: Centralised
+
+	agents:
+		agent8 failing_agent;
+
+	aslSourcePath:
+		"src/main/asl";
+}

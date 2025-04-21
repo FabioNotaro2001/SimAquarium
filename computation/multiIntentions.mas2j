@@ -1,0 +1,10 @@
+MAS initialGoals {
+
+	infrastructure: Centralised
+
+	agents:
+		agent10 multi_intentions_agent;
+
+	aslSourcePath:
+		"src/main/asl";
+}

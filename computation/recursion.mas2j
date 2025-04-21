@@ -1,0 +1,10 @@
+MAS recursion {
+
+	infrastructure: Centralised
+
+	agents:
+		agent1 recursive_agent;
+
+	aslSourcePath:
+		"src/main/asl";
+}

@@ -1,0 +1,10 @@
+MAS dummyFibonacci {
+
+	infrastructure: Centralised
+
+	agents:
+		agent12 dummy_fibonacci_agent;
+
+	aslSourcePath:
+		"src/main/asl";
+}

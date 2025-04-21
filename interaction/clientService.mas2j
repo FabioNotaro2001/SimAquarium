@@ -1,0 +1,11 @@
+MAS clientService {
+
+	infrastructure: Centralised
+
+	agents:
+		client client_agent;
+		service server_agent;
+
+	aslSourcePath:
+		"src/main/asl";
+}

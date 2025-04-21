@@ -1,0 +1,10 @@
+MAS finiteRecursion {
+
+	infrastructure: Centralised
+
+	agents:
+		agent4 finitely_recursive_agent;
+
+	aslSourcePath:
+		"src/main/asl";
+}

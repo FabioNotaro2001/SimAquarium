@@ -1,0 +1,10 @@
+MAS computation {
+
+	infrastructure: Centralised
+
+	agents:
+		agent11 bingo_agent;
+
+	aslSourcePath:
+		"src/main/asl";
+}
