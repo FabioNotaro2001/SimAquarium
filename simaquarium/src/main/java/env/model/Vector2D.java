@@ -1,3 +1,7 @@
+package env.model;
+
+import java.util.Objects;
+
 /**
  * Represents a 2D vector with immutable x and y components.
  */

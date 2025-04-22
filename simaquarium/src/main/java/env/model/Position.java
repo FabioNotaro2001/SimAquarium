@@ -1,5 +1,7 @@
 package env.model;
 
+import java.util.Objects;
+
 /**
  * The Position class represents a point in a 2D space with x and y coordinates.
  * It provides methods to create, access, modify, and calculate the distance between positions.
