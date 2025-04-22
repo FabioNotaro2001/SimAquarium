@@ -20,6 +20,7 @@ public class FishSimulationApp extends JFrame {
     public FishSimulationApp() {
         setTitle("Fish Simulation");
         setSize(800, 600);
+        setResizable(false);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         // --- Panel di disegno ---

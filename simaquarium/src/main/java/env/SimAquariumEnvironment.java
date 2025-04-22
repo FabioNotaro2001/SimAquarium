@@ -1,14 +1,20 @@
 package env;
 
+import jason.NoValueException;
+import jason.asSemantics.Unifier;
 import jason.asSyntax.Literal;
 import jason.asSyntax.Structure;
 import jason.environment.Environment;
+
+import static utils.Utils.*;
 
 import java.util.Collection;
 import java.util.Random;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import env.model.Speed;
 import env.view.FishSimulationApp;
 
 
@@ -21,7 +27,8 @@ public class SimAquariumEnvironment extends Environment {
 
     private static final Random RAND = new Random();
 
-    // action literals
+    // Action literals.
+    public static final Literal moveTowards = Literal.parseLiteral("move_towards(X, Y, Speed)");
     // public static final Literal moveForward = Literal.parseLiteral("move(" + FORWARD.name().toLowerCase() + ")");
     // public static final Literal moveRight = Literal.parseLiteral("move(" + RIGHT.name().toLowerCase() + ")");
     // public static final Literal moveLeft = Literal.parseLiteral("move(" + LEFT.name().toLowerCase() + ")");
@@ -97,6 +104,22 @@ public class SimAquariumEnvironment extends Environment {
      */
     @Override
     public boolean executeAction(final String ag, final Structure action) {
+        Unifier un = new Unifier();
+        if(un.unifies(moveTowards, action)){
+            double x;
+            double y;
+            Speed s;
+            try {
+                x = termToDouble(un.get("X"));
+                y = termToDouble(un.get("Y"));
+                s = termToSpeed(un.get("Speed"));
+
+            } catch (NoValueException e) {
+                e.printStackTrace();
+                return false;
+            }
+
+        }
         // initializeAgentIfNeeded(ag);
         // final boolean result;
         // if (RAND.nextDouble() < model.getSlideProbability()) {
@@ -122,6 +145,6 @@ public class SimAquariumEnvironment extends Environment {
         // } catch (InterruptedException ignored) { }
         // notifyModelChangedToView();
         // return result;
-        return false; // Placeholder, replace with actual action logic
+        return true; // Placeholder, replace with actual action logic
     }
 }
