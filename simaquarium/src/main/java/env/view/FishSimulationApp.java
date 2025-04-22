@@ -68,6 +68,7 @@ public class FishSimulationApp extends JFrame {
         // --- Split ---
         JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, leftPanel, rightPanel);
         splitPane.setDividerLocation(600);
+        splitPane.setEnabled(false);
 
         add(splitPane);
 
