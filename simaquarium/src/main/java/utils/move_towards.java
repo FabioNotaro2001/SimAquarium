@@ -2,6 +2,7 @@ package utils;
 
 import static utils.Utils.*;
 
+import env.model.Fish;
 import env.model.Position;
 import env.model.Speed;
 import env.model.Vector2D;
@@ -18,13 +19,20 @@ public class move_towards extends DefaultInternalAction {
         double x = termToDouble(args[0]);
         double y = termToDouble(args[1]);
         Speed speed = termToSpeed(args[2]);
+
         Agent currentAgent = ts.getAg();
-        Literal positionAsLiteral = currentAgent.findBel(Literal.parseLiteral("position(X, Y)"), un);
-        Position fishPosition = literalToPosition(positionAsLiteral);
         
-        Vector2D direction = Vector2D.fromPositions(fishPosition, new Position(x, y)).normalize();
-        Position newFishPosition = new Position(fishPosition.getX() + direction.getX() * Utils.NORMAL_MOVEMENT * speed.getSpeed(), fishPosition.getY() + direction.getY() * Utils.NORMAL_MOVEMENT * speed.getSpeed());
-        currentAgent.addBel(Literal.parseLiteral(String.format("position(%f, %f)", newFishPosition.getX(), newFishPosition.getY())));
+        double distance = Vector2D.fromPositions(Position.zero(), new Position(x, y)).getLength();
+
+        // The fish tries to eat the food
+        if (distance < 5) {
+            currentAgent.addBel(Literal.parseLiteral(String.format("close_to_food(%f, %f)", x, y)));
+        }
+        
+        Literal energyLiteral = currentAgent.findBel(Literal.parseLiteral("energy(E)"), un);
+        double fishEnergy = termToDouble(energyLiteral);
+        currentAgent.delBel(energyLiteral);
+        currentAgent.addBel(Literal.parseLiteral(String.format("energy(%f)", Math.max(0, fishEnergy - speed.getSpeed()))));
 
         return true;
     }

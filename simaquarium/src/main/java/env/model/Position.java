@@ -33,6 +33,10 @@ public class Position {
         return new Position(x, y);
     }
     
+    public static Position zero(){
+        return new Position(0, 0);
+    }
+    
     
     /**
      * Retrieves the x-coordinate of this position.

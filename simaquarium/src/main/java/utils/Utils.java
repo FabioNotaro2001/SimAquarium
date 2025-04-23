@@ -1,5 +1,7 @@
 package utils;
 
+import java.util.Random;
+
 import env.model.Position;
 import env.model.Speed;
 import jason.NoValueException;
@@ -11,7 +13,8 @@ import jason.asSyntax.NumberTermImpl;
 import jason.asSyntax.Term;
 
 public class Utils {
-    public static final double NORMAL_MOVEMENT = 10.0;
+    public static final Random RAND = new Random();
+
     public static ListTerm termToList(Term term){
         if(!term.isList()){
             throw new IllegalArgumentException("Cannot parse as ListTerm: " + term);

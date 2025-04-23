@@ -19,6 +19,10 @@ public final class Vector2D {
     public static Vector2D of(double x, double y) {
         return new Vector2D(x, y);
     }
+    
+    public static Vector2D of(double angle) {
+        return new Vector2D(Math.cos(angle), Math.sin(angle));
+    }
 
     /**
      * Private constructor to enforce immutability.
@@ -43,6 +47,10 @@ public final class Vector2D {
      */
     public double getY() {
         return y;
+    }
+
+    public double getLength() {
+        return Math.sqrt(Math.pow(this.x, 2) + Math.pow(this.y, 2));
     }
 
     @Override
@@ -121,7 +129,7 @@ public final class Vector2D {
      * @return a normalized Vector2D or the zero vector if length is zero
      */
     public Vector2D normalize(){
-        double length = Math.sqrt(Math.pow(this.x, 2) + Math.pow(this.y, 2));
+        double length = this.getLength();
         return length == 0 ? zero : new Vector2D(this.x / length, this.y / length);
     }
 

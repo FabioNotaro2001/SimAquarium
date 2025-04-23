@@ -23,13 +23,14 @@ public class find_nearest extends DefaultInternalAction {
             .map(t -> literalToPosition((Literal)t))
             .min((p1, p2) -> Double.compare(fishPosition.distanceFrom(p1), fishPosition.distanceFrom(p2)));
 
-        Literal currentTarget = currentAgent.findBel(Literal.parseLiteral("target_food(X, Y)"), un);
-        if(currentTarget != null){
-            currentAgent.delBel(currentTarget);
+        Literal hasTargetLiteral = currentAgent.findBel(Literal.parseLiteral("has_target"), un);
+        if(hasTargetLiteral != null){
+            currentAgent.delBel(hasTargetLiteral);
         }
 
         if(closestFood.isPresent()){
-            currentAgent.addBel(Literal.parseLiteral(String.format("target_food(%f, %f)", closestFood.get().getX(), closestFood.get().getY())));
+            currentAgent.addBel(hasTargetLiteral);
+            currentAgent.addBel(Literal.parseLiteral(String.format("direction(%f, %f)", closestFood.get().getX(), closestFood.get().getY())));
         } 
         
         return closestFood.isPresent();
