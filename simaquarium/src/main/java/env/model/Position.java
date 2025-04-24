@@ -74,6 +74,19 @@ public class Position {
         this.y = newY;
     }
 
+    public void addX(double newX){
+        this.x += newX;
+    }
+    
+    /**
+     * Sets the y-coordinate of the position to the specified value.
+     *
+     * @param newY the new y-coordinate value to set
+     */
+    public void addY(double newY){
+        this.y += newY;
+    }
+
     /**
      * Calculates the Euclidean distance between this position and another position.
      *

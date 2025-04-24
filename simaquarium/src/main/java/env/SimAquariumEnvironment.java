@@ -14,6 +14,8 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import env.model.AquariumModel;
+import env.model.AquariumModelImpl;
 import env.model.Speed;
 import env.view.FishSimulationApp;
 
@@ -29,31 +31,20 @@ public class SimAquariumEnvironment extends Environment {
 
     // Action literals.
     public static final Literal moveTowards = Literal.parseLiteral("move_towards(X, Y, Speed)");
-    // public static final Literal moveForward = Literal.parseLiteral("move(" + FORWARD.name().toLowerCase() + ")");
-    // public static final Literal moveRight = Literal.parseLiteral("move(" + RIGHT.name().toLowerCase() + ")");
-    // public static final Literal moveLeft = Literal.parseLiteral("move(" + LEFT.name().toLowerCase() + ")");
-    // public static final Literal moveBackward = Literal.parseLiteral("move(" + FORWARD.name().toLowerCase() + ")");
-    // public static final Literal moveRandom = Literal.parseLiteral("move(random)");
 
-    // static Logger logger = Logger.getLogger(Arena2DEnvironment.class.getName());
-
-    // private Arena2DModel model;
-    FishSimulationApp view = new FishSimulationApp();
+    private AquariumModel model;
+    FishSimulationApp view;
 
     @Override
     public void init(final String[] args) {
-        // this.model = new Arena2DModelImpl(Integer.parseInt(args[0]), Integer.parseInt(args[1]));
-        // if (args.length > 2) {
-        //     model.setSlideProbability(Double.parseDouble(args[2]));
-        // }
-        FishSimulationApp view = new FishSimulationApp();
-        this.view = view;
+        this.view = new FishSimulationApp(this.model);
         view.setVisible(true);
+        this.model = new AquariumModelImpl(this.view.getWidth(), this.view.getHeight());
     }
 
-    // private void notifyModelChangedToView() {
-    //     view.notifyModelChanged();
-    // }
+    private void notifyModelChangedToView() {
+        view.notifyModelChanged();
+    }
 
     // private void initializeAgentIfNeeded(String agentName) {
     //     if (!model.containsAgent(agentName)) {

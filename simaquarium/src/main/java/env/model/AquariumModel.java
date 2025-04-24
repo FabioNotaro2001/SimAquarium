@@ -1,15 +1,11 @@
 package env.model;
 
 import java.util.Collection;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public interface AquariumModel {
-
     /** Checks whether an agent with the given name exists in the environment */
     boolean containsAgent(String name);
 
@@ -18,6 +14,8 @@ public interface AquariumModel {
     
     /** Retrieves the set of positions of the food currently existing into the environment */
     Set<Food> getAllFood();
+
+    Set<Obstacle> getAllObstacles();
 
     /** Retrieves the width of the environment */
     int getWidth();
@@ -46,21 +44,19 @@ public interface AquariumModel {
     /** Retrieves an agent's absolute position in the environment, given its name */
     Fish getAgent(String agent);
 
-    /** Retrieves an agent name's given its absolute position, or nothing, if no agent is present in the provided position */
-    Optional<String> getAgentByPosition(Vector2D position);
-
     boolean isAgentCloseToFood(String agent, String food);
 
+    boolean isAgentCloseToObstacle(String agent, Obstacle obstacle);
+
     default Collection<Food> getNearbyFood(String agent) {
-        Fish fishAgent = getAgent(agent);
-        Position fishPosition = fishAgent.getPosition();
-        
         return getAllFood().stream()
-            .filter(food -> {
-                Position foodPos = food.getPosition();
-                Vector2D dir = Vector2D.fromPositions(fishPosition, foodPos);
-                return dir.getLength() <= fishAgent.getRange();
-            })
+            .filter(food -> this.isAgentCloseToFood(agent, food.getId()))
+            .collect(Collectors.toList());
+    }
+
+    default Collection<Obstacle> getNearbyObstacles(String agent) {
+        return this.getAllObstacles().stream()
+            .filter(o -> this.isAgentCloseToObstacle(agent, o))
             .collect(Collectors.toList());
     }
 
@@ -68,7 +64,13 @@ public interface AquariumModel {
     long getFPS();
     void setFPS(long fps);
 
-    /** Gets the sliding probability for the current environment */
-    double getSlideProbability();
-    void setSlideProbability(double value);
+    void moveTowards(String agent, double x, double y, Speed speed);
+
+    void sink(String food);
+
+    default void sinkStep(){
+        this.getAllFood().forEach(Food::sink);
+    }
+
+    Optional<Food> getFoodByPosition(double x, double y);
 }

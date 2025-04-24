@@ -1,8 +1,10 @@
 package env.view;
 
 import javax.swing.*;
+
+import env.model.AquariumModel;
+
 import java.awt.*;
-import java.awt.event.*;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Random;
@@ -16,8 +18,10 @@ public class FishSimulationApp extends JFrame {
     private ArrayList<Rock> rockList = new ArrayList<>();
     private ArrayList<Food> foodList = new ArrayList<>();
     private Random random = new Random();
+    private AquariumModel model;
 
-    public FishSimulationApp() {
+    public FishSimulationApp(AquariumModel model) {
+        this.model = model;
         setTitle("Fish Simulation");
         setSize(800, 600);
         setResizable(false);
@@ -259,5 +263,9 @@ public class FishSimulationApp extends JFrame {
         });
     
         dialog.setVisible(true);
+    }
+
+    public void notifyModelChanged() {
+        this.repaint();
     }
 }

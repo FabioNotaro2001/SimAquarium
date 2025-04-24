@@ -1,8 +1,5 @@
 package env.model;
 
-import jason.asSyntax.Literal;
-import utils.Utils;
-
 public class Fish {
     private double weight; // in grams, between 10 and 100
     private double energy;
@@ -25,6 +22,7 @@ public class Fish {
     public double getY() {
         return this.position.getY();
     }
+    
 
     public double getWeight() {
         return this.weight;

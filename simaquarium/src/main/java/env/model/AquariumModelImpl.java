@@ -1,19 +1,20 @@
-package env;
+package env.model;
 
-import javax.swing.text.html.Option;
 import java.util.*;
-import java.util.function.BiFunction;
 
 public class AquariumModelImpl implements AquariumModel {
-
     private final Map<String, Fish> agents = Collections.synchronizedMap(new HashMap<>());
     private final Map<String, Food> food = Collections.synchronizedMap(new HashMap<>());
+    private List<Obstacle> obstacles;
     private final int width;
     private final int height;
+    private int fps;
 
     public AquariumModelImpl(int width, int height) {
         this.width = width;
         this.height = height;
+        this.fps = 20;
+        this.obstacles = Collections.synchronizedList(new ArrayList<>());
     }
 
     @Override
@@ -48,89 +49,78 @@ public class AquariumModelImpl implements AquariumModel {
     }
 
     @Override
-    public Position getAgentPosition(String agent) {
-        synchronized (agent) {
-            ensureAgentExists(agent);
-            return agents.get(agent).getPosition();
-        }
-    }
-
-    @Override
-    public Orientation getAgentDirection(String agent) {
-        synchronized (agentPoses) {
-            ensureAgentExists(agent);
-            return agentPoses.get(agent).getOrientation();
-        }
-    }
-
-    private void setAgentPosition(String agent, Vector2D position) {
-        synchronized (agentPoses) {
-            Pose currentPose = agentPoses.get(agent);
-            agentPoses.put(agent, new Pose(position, currentPose.getOrientation()));
-        }
-    }
-
-    private void setAgentDirection(String agent, Orientation orientation) {
-        synchronized (agentPoses) {
-            Pose currentPose = agentPoses.get(agent);
-            agentPoses.put(agent, new Pose(currentPose.getPosition(), orientation));
-        }
-    }
-
-    @Override
-    public Optional<String> getAgentByPosition(Vector2D position) {
-        synchronized (agentPoses) {
-            return agentPoses.entrySet().stream()
-                    .filter(it -> it.getValue().getPosition() == position)
-                    .map(Map.Entry::getKey)
-                    .findFirst();
-        }
-    }
-
-    @Override
-    public boolean setAgentPose(String agent, int x, int y, Orientation orientation) {
-        synchronized (agentPoses) {
-            if (containsAgent(agent)) {
-                setAgentDirection(agent, orientation);
-                if (isPositionInside(x, y)) {
-                    Vector2D position = Vector2D.of(x, y);
-                    if (!getAgentByPosition(position).isPresent()) {
-                        setAgentPosition(agent, position);
-                        return true;
-                    }
-                }
-                return false;
-            }
-            agentPoses.put(agent, new Pose(Vector2D.of(x, y), orientation));
-            return true;
-        }
-    }
-
-    @Override
-    public boolean areAgentsNeighbours(String agent, String neighbour) {
-        if (!containsAgent(agent) || !containsAgent(neighbour)) return  false;
-        Vector2D agentPosition = getAgentPosition(agent);
-        Vector2D neighbourPosition = getAgentPosition(neighbour);
-        return neighbourhoodFunction.apply(agentPosition, neighbourPosition);
-    }
-
-    @Override
     public long getFPS() {
-        return fsp;
+        return this.fps;
     }
 
     @Override
     public void setFPS(long fps) {
-        this.fsp = Math.max(Math.min(60, fps), 1);
+        this.fps = Math.max(Math.min(60, this.fps), 1);
     }
 
     @Override
-    public double getSlideProbability() {
-        return slideProbability;
+    public Set<Food> getAllFood() {
+        return new HashSet<>(this.food.values());
     }
 
     @Override
-    public void setSlideProbability(double slideProbability) {
-        this.slideProbability = Math.max(Math.min(1d, slideProbability), 0d);;
+    public Fish getAgent(String agent) {
+        this.ensureAgentExists(agent);
+        return this.agents.get(agent);
+    }
+
+    @Override
+    public boolean isAgentCloseToFood(String agent, String food) {
+        this.ensureAgentExists(agent);
+        Position foodPos = this.food.get(food).getPosition();
+        Fish fish = this.agents.get(agent);
+        Vector2D dir = Vector2D.fromPositions(fish.getPosition(), foodPos);
+        return dir.getLength() <= fish.getRange();
+    }
+
+    @Override
+    public void moveTowards(String agent, double x, double y, Speed speed) {
+        synchronized(this){
+            this.ensureAgentExists(agent);
+            Fish fish = this.agents.get(agent);
+            Position pos = fish.getPosition();
+            pos.addX(x);
+            pos.addY(y);
+            fish.moveTowards(pos, speed);
+        }
+            
+    }
+
+    @Override
+    public void sink(String food) {
+        synchronized(this){
+            if(!this.food.containsKey(food)){
+                throw new IllegalArgumentException("No such an agent: " + food);
+            }
+            this.food.get(food).sink();
+        }
+    }
+
+    @Override
+    public Optional<Food> getFoodByPosition(double x, double y) {
+        synchronized(this){
+            return this.food.values().stream()
+                                        .filter(f -> f.getPosition().getX() == x && f.getPosition().getY() == y)
+                                        .findFirst();
+        }
+    }
+
+    @Override
+    public Set<Obstacle> getAllObstacles() {
+        return new HashSet<>(this.obstacles);
+    }
+
+    @Override
+    public boolean isAgentCloseToObstacle(String agent, Obstacle obstacle) {
+        this.ensureAgentExists(agent);
+        Position obstaclePos = new Position(obstacle.getX(), obstacle.getY());
+        Fish fish = this.agents.get(agent);
+        Vector2D dir = Vector2D.fromPositions(fish.getPosition(), obstaclePos);
+        return dir.getLength() <= fish.getRange() + obstacle.getRadius();
     }
 }
