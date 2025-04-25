@@ -1,5 +1,6 @@
 package env.model;
 
+import java.lang.StackWalker.Option;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.Set;
@@ -60,6 +61,19 @@ public interface AquariumModel {
             .collect(Collectors.toList());
     }
 
+    boolean canAgentEatFood(String agent, String foodId);
+    
+    default Optional<Food> closestFoodThatCanBeEaten(String agent){
+        Position fishPos = this.getAgent(agent).getPosition();
+        return this.getNearbyFood(agent).stream()
+            .filter(f -> this.canAgentEatFood(agent, f.getId()))
+            .sorted((f1, f2) -> {
+                double d1 = fishPos.distanceFrom(f1.getPosition());
+                double d2 = fishPos.distanceFrom(f2.getPosition());
+                return Double.compare(d1, d2);
+            }).findFirst();
+    }
+
     /** Get the frame-per-second value to be used by any view of the system */
     long getFPS();
     void setFPS(long fps);
@@ -73,4 +87,6 @@ public interface AquariumModel {
     }
 
     Optional<Food> getFoodByPosition(double x, double y);
+
+    boolean eat(String agent, String foodId);
 }

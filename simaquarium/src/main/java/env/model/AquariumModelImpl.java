@@ -5,6 +5,7 @@ import java.util.*;
 public class AquariumModelImpl implements AquariumModel {
     private final Map<String, Fish> agents = Collections.synchronizedMap(new HashMap<>());
     private final Map<String, Food> food = Collections.synchronizedMap(new HashMap<>());
+    private final Set<Fish> recentEaters = Collections.synchronizedSet(new HashSet<>());
     private List<Obstacle> obstacles;
     private final int width;
     private final int height;
@@ -122,5 +123,40 @@ public class AquariumModelImpl implements AquariumModel {
         Fish fish = this.agents.get(agent);
         Vector2D dir = Vector2D.fromPositions(fish.getPosition(), obstaclePos);
         return dir.getLength() <= fish.getRange() + obstacle.getRadius();
+    }
+
+    @Override
+    public boolean eat(String agent, String foodId) {
+        synchronized(this){
+            this.ensureAgentExists(agent);
+            if (!this.food.containsKey(foodId)) {
+                return false;
+            }
+            if (!this.isAgentCloseToFood(agent, foodId)) {
+                return false;
+            }
+            Fish fish = this.agents.get(agent);
+            Food food = this.food.get(foodId);
+            fish.addEnergy(food.DEFAULT_ENERGY);
+            this.food.remove(foodId);
+            if(!this.recentEaters.add(fish)){
+                this.recentEaters.remove(fish);
+                this.recentEaters.add(fish);
+            }
+            return true;
+        }
+    }
+
+    @Override
+    public boolean canAgentEatFood(String agent, String foodId) {
+        this.ensureAgentExists(agent);
+        if (!this.food.containsKey(foodId)) {
+            return false;
+        }
+        Fish fish = this.agents.get(agent);
+        Food food = this.food.get(foodId);
+
+        Vector2D dir = Vector2D.fromPositions(fish.getPosition(), food.getPosition());
+        return dir.getLength() <= fish.getEatingRange();
     }
 }

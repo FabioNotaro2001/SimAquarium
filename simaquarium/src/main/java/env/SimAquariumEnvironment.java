@@ -2,6 +2,8 @@ package env;
 
 import jason.NoValueException;
 import jason.asSemantics.Unifier;
+import jason.asSyntax.ListTerm;
+import jason.asSyntax.ListTermImpl;
 import jason.asSyntax.Literal;
 import jason.asSyntax.Structure;
 import jason.environment.Environment;
@@ -31,6 +33,7 @@ public class SimAquariumEnvironment extends Environment {
 
     // Action literals.
     public static final Literal moveTowards = Literal.parseLiteral("move_towards(X, Y, Speed)");
+    public static final Literal eat = Literal.parseLiteral("eat(Food)");
 
     private AquariumModel model;
     FishSimulationApp view;
@@ -55,39 +58,37 @@ public class SimAquariumEnvironment extends Environment {
 
     @Override
     public Collection<Literal> getPercepts(String agName) {
-        // initializeAgentIfNeeded(agName);
-        // return Stream.of(
-        //         surroundingPercepts(agName),
-        //         neighboursPercepts(agName)
-        // ).flatMap(Collection::stream)
-        // .collect(Collectors.toList());
-        return null; // Placeholder, replace with actual percepts logic
-
+        // Percept cibo in range, percept per il cibo abbastanza vicino, percept per gli ostacoli in range
+        return Stream.of(
+                foodInRangePercepts(agName),
+                closestFoodPercept(agName)
+        ).flatMap(Collection::stream)
+        .collect(Collectors.toList());
     }
 
-    // private Literal proximityPerceptFor(Direction direction, Vector2D position) {
-    //     if (model.getAgentByPosition(position).isPresent()) {
-    //         return Literal.parseLiteral(String.format("robot(%s)", direction.name().toLowerCase()));
-    //     } else if (model.isPositionOutside(position)) {
-    //         return Literal.parseLiteral(String.format("obstacle(%s)", direction.name().toLowerCase()));
-    //     } else {
-    //         return Literal.parseLiteral(String.format("free(%s)", direction.name().toLowerCase()));
-    //     }
-    // }
+    private Collection<Literal> foodInRangePercepts(String agent) {
+        var coordinates = model.getNearbyFood(agent)
+                .stream()
+                .map(f -> Literal.parseLiteral(String.format("food_elem(%f,%f,%s)", f.getPosition().getX(), f.getPosition().getY(), f.getId())))
+                .collect(ListTermImpl::new, ListTerm::add, ListTerm::addAll);
+        return Stream.of(Literal.parseLiteral("food(" + coordinates + ")")).collect(Collectors.toList());
+    }
 
-    // private Collection<Literal> surroundingPercepts(String agent) {
-    //     return model.getAgentSurroundingPositions(agent)
-    //             .entrySet().stream()
-    //             .map(it -> proximityPerceptFor(it.getKey(), it.getValue()))
-    //             .collect(Collectors.toList());
-    // }
+    private Collection<Literal> closestFoodPercept(String agent) {
+        return null;
+        // return model.getAgentNeighbours(agent).stream()
+        //         .map(it -> String.format("neighbour(%s)", it))
+        //         .map(Literal::parseLiteral)
+        //         .collect(Collectors.toList());
+    }
 
-    // private Collection<Literal> neighboursPercepts(String agent) {
-    //     return model.getAgentNeighbours(agent).stream()
-    //             .map(it -> String.format("neighbour(%s)", it))
-    //             .map(Literal::parseLiteral)
-    //             .collect(Collectors.toList());
-    // }
+    private Collection<Literal> obstaclePercepts(String agent) {
+        // return model.getAgentNeighbours(agent).stream()
+        //         .map(it -> String.format("neighbour(%s)", it))
+        //         .map(Literal::parseLiteral)
+        //         .collect(Collectors.toList());
+        return null;
+    }
 
     /**
      * The <code>boolean</code> returned represents the action "move"
@@ -104,12 +105,23 @@ public class SimAquariumEnvironment extends Environment {
                 x = termToDouble(un.get("X"));
                 y = termToDouble(un.get("Y"));
                 s = termToSpeed(un.get("Speed"));
+                this.model.moveTowards(ag, x, y, s);
+                return true;
 
             } catch (NoValueException e) {
                 e.printStackTrace();
                 return false;
             }
 
+        } else if(un.unifies(eat, action)){
+            String foodId;
+            try {
+                foodId = termToString(un.get("Food"));
+                return this.model.eat(ag, foodId);
+            } catch (NoValueException e) {
+                e.printStackTrace();
+                return false;
+            }
         }
         // initializeAgentIfNeeded(ag);
         // final boolean result;
