@@ -2,6 +2,7 @@ package utils;
 
 import java.util.Random;
 
+import env.model.Pair;
 import env.model.Position;
 import env.model.Speed;
 import jason.NoValueException;
@@ -10,7 +11,9 @@ import jason.asSyntax.ListTerm;
 import jason.asSyntax.Literal;
 import jason.asSyntax.NumberTerm;
 import jason.asSyntax.NumberTermImpl;
+import jason.asSyntax.StringTerm;
 import jason.asSyntax.Term;
+import jason.stdlib.string;
 
 public class Utils {
     public static final Random RAND = new Random();
@@ -41,6 +44,14 @@ public class Utils {
         return (double) termToNumber(term);
     }
 
+    public static String termToString(Term term) throws NoValueException {
+        if(!term.isString()) {
+            throw new IllegalArgumentException("Cannot parse as String: " + term);
+        }
+        return ((StringTerm)term).getString();
+    }
+
+
     public static Position literalToPosition(Literal literal) {
         if (!literal.getTerm(0).isNumeric() || !literal.getTerm(1).isNumeric()) {
             throw new IllegalArgumentException("Cannot parse as Position: " + literal);
@@ -52,6 +63,23 @@ public class Utils {
             );
         } catch (NoValueException e) {
             throw new IllegalArgumentException("Cannot parse as Position: " + literal);
+        }
+    }
+
+    public static Pair<Position, String> literalToPositionAndId(Literal literal) {
+        if (!literal.getTerm(0).isNumeric() || !literal.getTerm(1).isNumeric() || !literal.getTerm(2).isString()) {
+            throw new IllegalArgumentException("Cannot parse as position and id: " + literal);
+        }
+        try {
+            return new Pair<>(
+                    Position.of(
+                            termToDouble(literal.getTerm(0)),
+                            termToDouble(literal.getTerm(1))
+                    ),
+                    termToString(literal.getTerm(2))
+            );
+        } catch (NoValueException e) {
+            throw new IllegalArgumentException("Cannot parse as position and id: " + literal);
         }
     }
 
