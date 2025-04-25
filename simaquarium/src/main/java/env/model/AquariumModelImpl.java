@@ -95,7 +95,7 @@ public class AquariumModelImpl implements AquariumModel {
     public void sink(String food) {
         synchronized(this){
             if(!this.food.containsKey(food)){
-                throw new IllegalArgumentException("No such an agent: " + food);
+                throw new IllegalArgumentException("No such food: " + food);
             }
             this.food.get(food).sink();
         }
