@@ -23,7 +23,6 @@ public class Fish {
         return this.position.getY();
     }
     
-
     public double getWeight() {
         return this.weight;
     }
@@ -54,5 +53,17 @@ public class Fish {
 
     public static double speedFromWeight(double weight) {
         return 300 / weight;
+    }
+
+    public void addEnergy(double energy) {
+        this.energy = Math.min(100, this.energy + energy);
+    }
+
+    public void decreaseEnergy(double energy) {
+        this.energy = Math.max(0, this.energy - energy);
+    }
+
+    public double getEatingRange(){
+        return getRange() / 5;
     }
 }

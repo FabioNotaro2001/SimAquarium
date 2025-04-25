@@ -1,6 +1,8 @@
 package env.model;
 
+// TODO Fare che il pesce pesante abbia bisogno di più cibo per raggiungere il 100% di energia
 public class Food {
+    public final double DEFAULT_ENERGY = 20.0;
     private String id;
     private Position position;
 
@@ -27,4 +29,5 @@ public class Food {
     public void sink() {
         this.position.setY(Math.max(0, this.getY() - 1));
     }
+
 }

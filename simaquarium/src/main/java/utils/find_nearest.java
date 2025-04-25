@@ -4,8 +4,12 @@ import jason.asSemantics.Agent;
 import jason.asSemantics.DefaultInternalAction;
 import jason.asSemantics.TransitionSystem;
 import jason.asSemantics.Unifier;
+import jason.asSyntax.ListTerm;
+import jason.asSyntax.ListTermImpl;
 import jason.asSyntax.Literal;
 import jason.asSyntax.Term;
+import jason.stdlib.print;
+
 import java.util.List;
 import java.util.Optional;
 import env.model.Position;
@@ -35,4 +39,15 @@ public class find_nearest extends DefaultInternalAction {
         
         return closestFood.isPresent();
     }
+
+    public static void main(String[] args) {
+        ListTerm coordinates = new ListTermImpl();
+        coordinates.add(Literal.parseLiteral("food_elem(1, 2, food1)"));
+        var elem = (Literal)coordinates.get(0);
+        System.out.println(elem.getTerm(0));
+        System.out.println(elem.getTerm(1));
+        System.out.println(elem.getTerm(2));
+    }
+
 }
+
