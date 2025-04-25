@@ -13,7 +13,6 @@ import jason.asSyntax.NumberTerm;
 import jason.asSyntax.NumberTermImpl;
 import jason.asSyntax.StringTerm;
 import jason.asSyntax.Term;
-import jason.stdlib.string;
 
 public class Utils {
     public static final Random RAND = new Random();

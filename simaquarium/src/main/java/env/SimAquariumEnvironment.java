@@ -11,6 +11,7 @@ import jason.environment.Environment;
 import static utils.Utils.*;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Random;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -61,7 +62,8 @@ public class SimAquariumEnvironment extends Environment {
         // Percept cibo in range, percept per il cibo abbastanza vicino, percept per gli ostacoli in range
         return Stream.of(
                 foodInRangePercepts(agName),
-                closestFoodPercept(agName)
+                closestFoodPercept(agName),
+                obstaclePercepts(agName)
         ).flatMap(Collection::stream)
         .collect(Collectors.toList());
     }
@@ -71,23 +73,20 @@ public class SimAquariumEnvironment extends Environment {
                 .stream()
                 .map(f -> Literal.parseLiteral(String.format("food_elem(%f,%f,%s)", f.getPosition().getX(), f.getPosition().getY(), f.getId())))
                 .collect(ListTermImpl::new, ListTerm::add, ListTerm::addAll);
-        return Stream.of(Literal.parseLiteral("food(" + coordinates + ")")).collect(Collectors.toList());
+        return Stream.of(Literal.parseLiteral(String.format("food(%s)", coordinates))).collect(Collectors.toList());
     }
 
     private Collection<Literal> closestFoodPercept(String agent) {
-        return null;
-        // return model.getAgentNeighbours(agent).stream()
-        //         .map(it -> String.format("neighbour(%s)", it))
-        //         .map(Literal::parseLiteral)
-        //         .collect(Collectors.toList());
+        var foodOpt = this.model.getClosestFoodThatCanBeEaten(agent);
+        return foodOpt.isPresent() ? List.of(Literal.parseLiteral(String.format("close_to_food(%s)", foodOpt.get().getId()))) : List.of();
     }
 
     private Collection<Literal> obstaclePercepts(String agent) {
-        // return model.getAgentNeighbours(agent).stream()
-        //         .map(it -> String.format("neighbour(%s)", it))
-        //         .map(Literal::parseLiteral)
-        //         .collect(Collectors.toList());
-        return null;
+        var coordinates = this.model.getNearbyObstacles(agent)
+                .stream()
+                .map(o -> Literal.parseLiteral(String.format("obstacle(%f,%f)", o.getX(), o.getY())))
+                .collect(ListTermImpl::new, ListTerm::add, ListTerm::addAll);
+        return Stream.of(Literal.parseLiteral(String.format("obstacles(%s)", coordinates))).collect(Collectors.toList());
     }
 
     /**
