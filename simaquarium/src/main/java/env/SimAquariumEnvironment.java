@@ -13,7 +13,6 @@ import static utils.Utils.*;
 import java.util.Collection;
 import java.util.List;
 import java.util.Random;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -29,8 +28,10 @@ import env.view.FishSimulationApp;
  * updatePercepts() and executeAction().
  */
 public class SimAquariumEnvironment extends Environment {
-
     private static final Random RAND = new Random();
+    private Thread foodSimulationThread;
+    private boolean stopRequested;
+
 
     // Action literals.
     public static final Literal moveTowards = Literal.parseLiteral("move_towards(X, Y, Speed)");
@@ -44,6 +45,21 @@ public class SimAquariumEnvironment extends Environment {
         this.view = new FishSimulationApp(this.model);
         view.setVisible(true);
         this.model = new AquariumModelImpl(this.view.getWidth(), this.view.getHeight());
+        this.stopRequested = false;
+        this.foodSimulationThread = new Thread(new Runnable(){
+            @Override
+            public void run() {
+                while (!stopRequested) {    // TODO: stopRequested dovrebbe essere settato premendo il bottone stop.
+                    model.sinkStep();
+                    try {
+                        Thread.sleep(2000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        });
+        this.foodSimulationThread.start();  // TODO: questo andrebbe nel bottone start.
     }
 
     private void notifyModelChangedToView() {

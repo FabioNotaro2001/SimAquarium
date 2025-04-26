@@ -63,7 +63,7 @@ public interface AquariumModel {
 
     boolean canAgentEatFood(String agent, String foodId);
     
-    default Optional<Food> closestFoodThatCanBeEaten(String agent){
+    default Optional<Food> getClosestFoodThatCanBeEaten(String agent){
         Position fishPos = this.getAgent(agent).getPosition();
         return this.getNearbyFood(agent).stream()
             .filter(f -> this.canAgentEatFood(agent, f.getId()))

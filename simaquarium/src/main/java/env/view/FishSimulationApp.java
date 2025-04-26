@@ -266,6 +266,7 @@ public class FishSimulationApp extends JFrame {
     }
 
     public void notifyModelChanged() {
+        // TODO
         this.repaint();
     }
 }
