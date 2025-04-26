@@ -1,6 +1,5 @@
 package env.model;
 
-import java.lang.StackWalker.Option;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.Set;
@@ -47,14 +46,14 @@ public interface AquariumModel {
 
     boolean isAgentCloseToFood(String agent, String food);
 
-    boolean isAgentCloseToObstacle(String agent, Obstacle obstacle);
-
     default Collection<Food> getNearbyFood(String agent) {
         return getAllFood().stream()
             .filter(food -> this.isAgentCloseToFood(agent, food.getId()))
             .collect(Collectors.toList());
     }
 
+    boolean isAgentCloseToObstacle(String agent, Obstacle obstacle);
+        
     default Collection<Obstacle> getNearbyObstacles(String agent) {
         return this.getAllObstacles().stream()
             .filter(o -> this.isAgentCloseToObstacle(agent, o))

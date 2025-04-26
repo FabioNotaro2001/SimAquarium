@@ -5,6 +5,7 @@ import java.util.Random;
 import env.model.Pair;
 import env.model.Position;
 import env.model.Speed;
+import env.model.Vector2D;
 import jason.NoValueException;
 import jason.asSyntax.Atom;
 import jason.asSyntax.ListTerm;
@@ -64,6 +65,20 @@ public class Utils {
             throw new IllegalArgumentException("Cannot parse as Position: " + literal);
         }
     }
+    
+    public static Vector2D literalToVector2D(Literal literal) {
+        if (!literal.getTerm(0).isNumeric() || !literal.getTerm(1).isNumeric()) {
+            throw new IllegalArgumentException("Cannot parse as Vector2D: " + literal);
+        }
+        try {
+            return Vector2D.of(
+                    termToDouble(literal.getTerm(0)),
+                    termToDouble(literal.getTerm(1))
+            );
+        } catch (NoValueException e) {
+            throw new IllegalArgumentException("Cannot parse as Vector2D: " + literal);
+        }
+    }
 
     public static Pair<Position, String> literalToPositionAndId(Literal literal) {
         if (!literal.getTerm(0).isNumeric() || !literal.getTerm(1).isNumeric() || !literal.getTerm(2).isString()) {
@@ -79,6 +94,23 @@ public class Utils {
             );
         } catch (NoValueException e) {
             throw new IllegalArgumentException("Cannot parse as position and id: " + literal);
+        }
+    }
+
+    public static Pair<Position, Double> literalToPositionAndRadius(Literal literal) {
+        if (!literal.getTerm(0).isNumeric() || !literal.getTerm(1).isNumeric()) {
+            throw new IllegalArgumentException("Cannot parse as position and radius: " + literal);
+        }
+        try {
+            return new Pair<>(
+                    Position.of(
+                            termToDouble(literal.getTerm(0)),
+                            termToDouble(literal.getTerm(1))
+                    ),
+                    termToDouble(literal.getTerm(2))
+            );
+        } catch (NoValueException e) {
+            throw new IllegalArgumentException("Cannot parse as position and radius: " + literal);
         }
     }
 

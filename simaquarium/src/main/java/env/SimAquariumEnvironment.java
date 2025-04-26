@@ -22,6 +22,8 @@ import env.model.Speed;
 import env.view.FishSimulationApp;
 
 
+// TODO: inizializzare pesce, cibo e ostacoli per la simulazione
+
 /**
  * Any Jason environment "entry point" should extend
  * jason.environment.Environment class to override methods init(),
@@ -62,20 +64,21 @@ public class SimAquariumEnvironment extends Environment {
         this.foodSimulationThread.start();  // TODO: questo andrebbe nel bottone start.
     }
 
-    private void notifyModelChangedToView() {
+    private void notifyModelChangedToView() { // TODO: usare dentro executeAction
         view.notifyModelChanged();
     }
 
-    // private void initializeAgentIfNeeded(String agentName) {
-    //     if (!model.containsAgent(agentName)) {
-    //         model.setAgentPoseRandomly(agentName);
-    //         view.notifyModelChanged();
-    //     }
-    // }
+    private void initializeAgentIfNeeded(String agentName) {
+        if (!model.containsAgent(agentName)) {
+            // TODO: aggiungere agente con posizione casuale
+            notifyModelChangedToView();
+        }
+    }
 
     @Override
     public Collection<Literal> getPercepts(String agName) {
         // Percept cibo in range, percept per il cibo abbastanza vicino, percept per gli ostacoli in range
+        initializeAgentIfNeeded(agName);
         return Stream.of(
                 foodInRangePercepts(agName),
                 closestFoodPercept(agName),
@@ -100,7 +103,7 @@ public class SimAquariumEnvironment extends Environment {
     private Collection<Literal> obstaclePercepts(String agent) {
         var coordinates = this.model.getNearbyObstacles(agent)
                 .stream()
-                .map(o -> Literal.parseLiteral(String.format("obstacle(%f,%f)", o.getX(), o.getY())))
+                .map(o -> Literal.parseLiteral(String.format("obstacle(%f,%f,%f)", o.getX(), o.getY(), o.getRadius())))
                 .collect(ListTermImpl::new, ListTerm::add, ListTerm::addAll);
         return Stream.of(Literal.parseLiteral(String.format("obstacles(%s)", coordinates))).collect(Collectors.toList());
     }
@@ -111,6 +114,8 @@ public class SimAquariumEnvironment extends Environment {
      */
     @Override
     public boolean executeAction(final String ag, final Structure action) {
+        initializeAgentIfNeeded(ag);
+
         Unifier un = new Unifier();
         if(un.unifies(moveTowards, action)){
             double x;

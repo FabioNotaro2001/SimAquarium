@@ -80,6 +80,16 @@ public final class Vector2D {
     public Vector2D times(double factor) {
         return new Vector2D(x * factor, y * factor);
     }
+    
+    /**
+     * Returns a new Vector2D scaled by the given factor.
+     *
+     * @param factor the scale factor
+     * @return a new scaled Vector2D
+     */
+    public double times(Vector2D other) {
+        return this.x * other.x + this.y * other.y;
+    }
 
     /**
      * Returns a new Vector2D by adding another Vector2D.
@@ -121,6 +131,23 @@ public final class Vector2D {
      */
     public Vector2D minus(double x, double y) {
         return new Vector2D(this.x - x, this.y - y);
+    }
+    
+    /**
+     * Rotates the vector counterclockwise by an angle.
+     *
+     * @param angle the angle of rotation
+     * @return a new resulting Vector2D
+     */
+    public Vector2D rotateBy(double angle) {
+        return new Vector2D(x * Math.cos(angle) - y * Math.sin(angle), x * Math.sin(angle) + y * Math.cos(angle));
+    }
+
+    /**
+     * Returns the angle between the vector and the x-axis.
+     */
+    public double angle() {
+        return Math.atan2(y, x);
     }
 
     /**

@@ -23,4 +23,7 @@ public class Obstacle {
         return this.radius;
     }
 
+    public Position getPosition() {
+        return new Position(getX(), getY());
+    }
 }

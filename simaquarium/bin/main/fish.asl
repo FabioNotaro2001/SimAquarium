@@ -20,6 +20,8 @@ steps(0).
 
 +close_to_food(F) <- eat(Food).
 
++obstacles(coordinates) <- utils.avoid_obstacles(coordinates).
+
 +eaten : energy(E) <- 
     -has_target;
     utils.find_nearest(coordinates);

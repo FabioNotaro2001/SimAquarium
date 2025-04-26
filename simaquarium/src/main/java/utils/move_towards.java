@@ -2,7 +2,6 @@ package utils;
 
 import static utils.Utils.*;
 
-import env.model.Fish;
 import env.model.Position;
 import env.model.Speed;
 import env.model.Vector2D;

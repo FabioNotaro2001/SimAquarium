@@ -1,0 +1,75 @@
+package utils;
+
+import static utils.Utils.*;
+
+import java.util.List;
+import java.util.Optional;
+
+import env.model.Pair;
+import env.model.Position;
+import env.model.Vector2D;
+import jason.asSemantics.Agent;
+import jason.asSemantics.DefaultInternalAction;
+import jason.asSemantics.TransitionSystem;
+import jason.asSemantics.Unifier;
+import jason.asSyntax.Literal;
+import jason.asSyntax.Term;
+
+public class avoid_obstacles extends DefaultInternalAction {
+    
+    /**
+     * Checks if the obstacle is in front of fish based on its direction.
+     * @param fishDir
+     * @param obstaclePos
+     * @param obstacleRadius
+     * @return
+     */
+    private boolean isObstacleOnPath(Vector2D fishDir, Position obstaclePos, double obstacleRadius) {
+        Vector2D dirToObstacle = Vector2D.fromPositions(Position.zero(), obstaclePos);
+        /* 
+            Projection of the obstacle position onto the fish direction vector. 
+            Simplified version thanks to the fish being at (0,0).
+        */
+        Vector2D projection = fishDir.times(dirToObstacle.times(fishDir) / fishDir.times(fishDir)); 
+        Vector2D projToObstacle = dirToObstacle.minus(projection);
+
+        return projToObstacle.times(projToObstacle) <= obstacleRadius;
+    }
+
+    /**
+     * Checks if the obstacle is to the left of fish from its point of view.
+     * @param fishDir
+     * @param obstaclePos
+     * @return
+     */
+    private boolean isObstacleToTheLeft(Vector2D fishDir, Position obstaclePos) {
+        Vector2D dirToObstacle = Vector2D.fromPositions(Position.zero(), obstaclePos);
+        double fishDirAngle = fishDir.angle();
+
+        Vector2D rotatedDirToObstacle = dirToObstacle.rotateBy(-fishDirAngle);
+
+        return rotatedDirToObstacle.angle() >= 0; // A positive angle means the vector is "to the left" of the fish's direction.
+    }
+    
+    @Override
+    public Object execute(TransitionSystem ts, Unifier un, Term[] args) throws Exception {
+        Agent currentAgent = ts.getAg();
+        Literal directionAsLiteral = currentAgent.findBel(Literal.parseLiteral("direction(X, Y)"), un);
+        Vector2D fishDir = literalToVector2D(directionAsLiteral);
+
+        List<Term> coordinatesList = termToList(args[0]);
+        Optional<Position> closestObstacleOnPath = coordinatesList.stream()
+            .map(t -> literalToPositionAndRadius((Literal)t))
+            .filter(p -> isObstacleOnPath(fishDir, p.getX(), p.getY()))
+            .map(Pair::getX)
+            .min((p1, p2) -> Double.compare(Position.zero().distanceFrom(p1), Position.zero().distanceFrom(p2)));
+
+        if(closestObstacleOnPath.isPresent()){
+            currentAgent.delBel(directionAsLiteral);
+            Vector2D newDir = isObstacleToTheLeft(fishDir, closestObstacleOnPath.get()) ? fishDir.rotateBy(-Math.PI / 4) : fishDir.rotateBy(Math.PI / 4);
+            currentAgent.addBel(Literal.parseLiteral(String.format("direction(%f, %f)", newDir.getX(), newDir.getY())));
+        } 
+        
+        return true;
+    }
+}
