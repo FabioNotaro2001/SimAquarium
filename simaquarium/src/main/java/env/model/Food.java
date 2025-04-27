@@ -7,6 +7,7 @@ public class Food {
     private Position position;
 
     public Food(String id, Position position) {
+        this.id = id;
         this.position = position;
     }
 

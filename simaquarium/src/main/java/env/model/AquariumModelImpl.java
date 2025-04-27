@@ -7,15 +7,20 @@ public class AquariumModelImpl implements AquariumModel {
     private final Map<String, Food> food = Collections.synchronizedMap(new HashMap<>());
     private final Set<Fish> recentEaters = Collections.synchronizedSet(new HashSet<>());
     private List<Obstacle> obstacles;
-    private final int width;
-    private final int height;
+    private int width;
+    private int height;
     private int fps;
+    private long foodId;
 
-    public AquariumModelImpl(int width, int height) {
-        this.width = width;
-        this.height = height;
+    public AquariumModelImpl() {
         this.fps = 20;
         this.obstacles = Collections.synchronizedList(new ArrayList<>());
+        this.foodId = 0;
+    }
+
+    public void setAquariumDimensions(int width, int height){
+        this.width = width;
+        this.height = height;
     }
 
     @Override
@@ -24,8 +29,8 @@ public class AquariumModelImpl implements AquariumModel {
     }
 
     @Override
-    public Set<String> getAllAgents() {
-        return agents.keySet();
+    public Set<Fish> getAllAgents() {
+        return new HashSet<>(agents.values());
     }
 
     @Override
@@ -158,5 +163,21 @@ public class AquariumModelImpl implements AquariumModel {
 
         Vector2D dir = Vector2D.fromPositions(fish.getPosition(), food.getPosition());
         return dir.getLength() <= fish.getEatingRange();
+    }
+
+    @Override
+    public void addFish(String agentName, Position position, double weight) {
+        this.agents.put(agentName, new Fish(weight, position));
+    }
+
+    @Override
+    public void addFood(Position position) {
+        String id = "food-" + this.foodId++;
+        this.food.put(id, new Food(id, position));
+    }
+
+    @Override
+    public void addObstacle(Position position, double radius) {
+        this.obstacles.add(new Obstacle(position.getX(), position.getY(), radius));
     }
 }

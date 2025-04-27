@@ -29,10 +29,10 @@ public class move_towards extends DefaultInternalAction {
         }
         
         Literal energyLiteral = currentAgent.findBel(Literal.parseLiteral("energy(E)"), un);
-        double fishEnergy = termToDouble(energyLiteral);
+        double fishEnergy = termToDouble(energyLiteral.getTerm(0));
         currentAgent.delBel(energyLiteral);
         currentAgent.addBel(Literal.parseLiteral(String.format("energy(%f)", Math.max(0, fishEnergy - speed.getSpeed()))));
-
+        Thread.sleep(100);
         return true;
     }
 }

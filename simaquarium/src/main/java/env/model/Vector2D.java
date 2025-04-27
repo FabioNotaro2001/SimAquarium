@@ -168,7 +168,7 @@ public final class Vector2D {
      * @return a new Vector2D based on position differences
      */
     public static Vector2D fromPositions(Position to, Position from) {
-        return new Vector2D(from.getX() - to.getX(), from.getY() + to.getY());
+        return new Vector2D(from.getX() - to.getX(), from.getY() - to.getY());
     }
 
     /**

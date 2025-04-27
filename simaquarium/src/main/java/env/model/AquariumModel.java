@@ -6,11 +6,12 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public interface AquariumModel {
+    void setAquariumDimensions(int width, int height);
     /** Checks whether an agent with the given name exists in the environment */
     boolean containsAgent(String name);
 
     /** Retrieves the set of agent identifiers of all the agents currently existing into the environment */
-    Set<String> getAllAgents();
+    Set<Fish> getAllAgents();
     
     /** Retrieves the set of positions of the food currently existing into the environment */
     Set<Food> getAllFood();
@@ -88,4 +89,10 @@ public interface AquariumModel {
     Optional<Food> getFoodByPosition(double x, double y);
 
     boolean eat(String agent, String foodId);
+
+    void addFish(String agentName, Position position, double weight);
+
+    void addFood(Position position);
+
+    void addObstacle(Position position, double radius);
 }

@@ -16,7 +16,7 @@ public class set_random_dir extends DefaultInternalAction {
         Agent currentAgent = ts.getAg();
         Random r = new Random();
 
-        Vector2D dir = Vector2D.of(r.nextDouble() * Math.PI);
+        Vector2D dir = Vector2D.of(r.nextDouble() * Math.PI * 2);
         
         currentAgent.addBel(Literal.parseLiteral(String.format("direction(%f, %f)", dir.getX(), dir.getY())));
 

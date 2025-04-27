@@ -1,8 +1,8 @@
 // Beliefs.
 energy(100).
 speed(normal).
-steps(0).
-// Nel model probabilmente ci andranno weigth e range.
+steps(1).
+direction(1, 0).
 
 // TODO: l'aggiramento degli ostacoli deve tenere in considerazione i bordi, il fatto che il cibo cade e più ostacoli ravvicinati.
 
@@ -28,27 +28,29 @@ steps(0).
     -+energy(.max(100, E + 10)).
 
 -food(_) <- 
-    utils.set_random_dir();
+    utils.set_random_dir;
     -+steps(10).
 
 +!move : not(has_target) & (energy(E) & E < 75) & steps(S) & direction(X, Y) <-
     -+speed(slow);
     utils.move_towards(X, Y, slow);
     move_towards(X, Y, slow);
+    .print(S);
     if (S - 1 = 0) {
-        utils.set_random_dir();
+        utils.set_random_dir;
         -+steps(10);
     } else {
-        -+steps(S - 1).
+        -+steps(S - 1);
     }
     !move.
 
 +!move : not(has_target) & steps(S) & direction(X, Y) <-
     -+speed(normal);
     utils.move_towards(X, Y, normal);
+    .print(S);
     move_towards(X, Y, normal);
     if (S - 1 = 0) {
-        utils.set_random_dir();
+        utils.set_random_dir;
         -+steps(10);
     } else {
         -+steps(S - 1);

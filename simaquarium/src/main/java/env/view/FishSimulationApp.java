@@ -3,25 +3,32 @@ package env.view;
 import javax.swing.*;
 
 import env.model.AquariumModel;
+import env.model.Fish;
+import env.model.Food;
+import env.model.Obstacle;
+import env.model.Position;
 
 import java.awt.*;
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.Random;
+import java.util.Set;
 
 public class FishSimulationApp extends JFrame {
     private DrawPanel drawPanel;
     private JTextArea statsArea;
     private JTextArea eventsArea;
     private Timer timer;
-    private ArrayList<Fish> fishList = new ArrayList<>();
-    private ArrayList<Rock> rockList = new ArrayList<>();
-    private ArrayList<Food> foodList = new ArrayList<>();
+    private Set<Fish> fishList;
+    private Set<Obstacle> rockList;
+    private Set<Food> foodList;
     private Random random = new Random();
     private AquariumModel model;
+    private JPanel leftPanel;
 
     public FishSimulationApp(AquariumModel model) {
         this.model = model;
+        this.fishList = this.model.getAllAgents();
+        this.foodList = this.model.getAllFood();
+        this.rockList = this.model.getAllObstacles();
         setTitle("Fish Simulation");
         setSize(800, 600);
         setResizable(false);
@@ -41,9 +48,9 @@ public class FishSimulationApp extends JFrame {
         buttonPanel.add(stopButton);
         buttonPanel.add(feeder);
 
-        JPanel leftPanel = new JPanel(new BorderLayout());
-        leftPanel.add(drawPanel, BorderLayout.CENTER);
-        leftPanel.add(buttonPanel, BorderLayout.SOUTH);
+        this.leftPanel = new JPanel(new BorderLayout());
+        this.leftPanel.add(drawPanel, BorderLayout.CENTER);
+        this.leftPanel.add(buttonPanel, BorderLayout.SOUTH);
 
         // --- Sidebar ---
         JPanel rightPanel = new JPanel();
@@ -70,30 +77,12 @@ public class FishSimulationApp extends JFrame {
         rightPanel.add(rightBox);
 
         // --- Split ---
-        JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, leftPanel, rightPanel);
+        JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, this.leftPanel, rightPanel);
         splitPane.setDividerLocation(600);
         splitPane.setEnabled(false);
 
         add(splitPane);
-
-        // --- Timer per movimento pesci ---
-        timer = new Timer(30, e -> {
-            for (Fish fish : fishList) {
-                fish.move();
-            }
-
-        Iterator<Food> it = foodList.iterator();
-        while (it.hasNext()) {
-            Food food = it.next();
-            food.move();
-            if (food.isOutOfBounds(drawPanel.getHeight())) {
-                it.remove(); // rimuove il cibo uscito fuori
-            }
-        }
-            drawPanel.repaint();
-            updateStats();
-        });
-
+    
         // --- Eventi Bottoni ---
         startButton.addActionListener(e -> {
             openStartDialog();
@@ -110,13 +99,16 @@ public class FishSimulationApp extends JFrame {
 
         feeder.addActionListener(e -> {
             int x = random.nextInt(drawPanel.getWidth() - 10); // un po' di margine
-            foodList.add(new Food(x));
+            for(int i = 0; i < 5; i++){
+                model.addFood(new Position(new Random().nextDouble() * model.getWidth(), 0));
+            }
         
             logEvent("Food dropped");
             updateStats();
             drawPanel.repaint(); 
             drawPanel.revalidate();
-        });        
+        });   
+        
     }
 
     private void updateStats() {
@@ -128,70 +120,70 @@ public class FishSimulationApp extends JFrame {
         eventsArea.append(event + "\n");
     }
 
-    class Fish {
-        Random random = new Random();
-        int x, y;
-        int dx, dy;
-        int size = 5 + random.nextInt(30);
+    // class Fish {
+    //     Random random = new Random();
+    //     int x, y;
+    //     int dx, dy;
+    //     int size = 5 + random.nextInt(30);
 
-        Fish(int x, int y) {
-            this.x = x;
-            this.y = y;
-            this.dx = random.nextInt(5) + 1;
-            this.dy = random.nextInt(5) + 1;
-        }
+    //     Fish(int x, int y) {
+    //         this.x = x;
+    //         this.y = y;
+    //         this.dx = random.nextInt(5) + 1;
+    //         this.dy = random.nextInt(5) + 1;
+    //     }
 
-        void move() {
-            x += dx;
-            y += dy;
-            if (x < 0 || x > drawPanel.getWidth() - size) dx = -dx;
-            if (y < 0 || y > drawPanel.getHeight() - size) dy = -dy;
-        }
+    //     void move() {
+    //         x += dx;
+    //         y += dy;
+    //         if (x < 0 || x > drawPanel.getWidth() - size) dx = -dx;
+    //         if (y < 0 || y > drawPanel.getHeight() - size) dy = -dy;
+    //     }
 
-        void draw(Graphics g) {
-            g.setColor(Color.ORANGE);
-            g.fillOval(x, y, size, size/2);
-        }
-    }
+    //     void draw(Graphics g) {
+    //         g.setColor(Color.ORANGE);
+    //         g.fillOval(x, y, size, size/2);
+    //     }
+    // }
 
-    class Rock {
-        int x, y;
-        int size = 30;
+    // class Rock {
+    //     int x, y;
+    //     int size = 30;
     
-        Rock(int x, int y) {
-            this.x = x;
-            this.y = y;
-        }
+    //     Rock(int x, int y) {
+    //         this.x = x;
+    //         this.y = y;
+    //     }
     
-        void draw(Graphics g) {
-            g.setColor(Color.DARK_GRAY);
-            g.fillOval(x, y, size, size);
-        }
-    }    
+    //     void draw(Graphics g) {
+    //         g.setColor(Color.DARK_GRAY);
+    //         g.fillOval(x, y, size, size);
+    //     }
+    // }    
 
-    class Food {
-        int x, y;
-        int size = 8;
-        int speed = 3;
+    // class Food {
+    //     int x, y;
+    //     int size = 8;
+    //     int speed = 3;
     
-        Food(int x) {
-            this.x = x;
-            this.y = 0; // inizia in alto
-        }
+    //     Food(int x) {
+    //         this.x = x;
+    //         this.y = 0; // inizia in alto
+    //     }
     
-        void move() {
-            y += speed;
-        }
+    //     void move() {
+    //         y += speed;
+    //     }
     
-        boolean isOutOfBounds(int panelHeight) {
-            return y > panelHeight;
-        }
+    //     boolean isOutOfBounds(int panelHeight) {
+    //         return y > panelHeight;
+    //     }
     
-        void draw(Graphics g) {
-            g.setColor(Color.PINK);
-            g.fillOval(x, y, size, size);
-        }
-    }    
+    //     void draw(Graphics g) {
+    //         g.setColor(Color.PINK);
+    //         g.fillOval(x, y, size, size);
+    //     }
+    // }    
 
     class DrawPanel extends JPanel {
         // --- Panel che disegna i pesci ---
@@ -200,16 +192,19 @@ public class FishSimulationApp extends JFrame {
             super.paintComponent(g);
 
             // Disegna rocce prima dei pesci
-            for (Rock rock : rockList) {
-                rock.draw(g);
+            for (Obstacle rock : rockList) {
+                g.setColor(Color.DARK_GRAY);
+                g.fillOval((int)rock.getX(), (int)rock.getY(), (int)rock.getRadius(), (int)rock.getRadius());
             }
 
             for (Fish fish : fishList) {
-                fish.draw(g);
+                g.setColor(Color.ORANGE);
+                g.fillOval((int)fish.getX(), (int)fish.getY(), (int)fish.getWeight(), (int)fish.getWeight()/2);
             }
 
             for (Food food : foodList) {
-                food.draw(g);
+                g.setColor(Color.RED);
+                g.fillOval((int)food.getX(), (int)food.getY(), 5, 5);
             }
         }
     }
@@ -240,16 +235,6 @@ public class FishSimulationApp extends JFrame {
                 int fishCount = Integer.parseInt(fishField.getText());
                 int rockCount = Integer.parseInt(rockField.getText());
     
-                // Aggiungiamo pesci
-                for (int i = 0; i < fishCount; i++) {
-                    fishList.add(new Fish(random.nextInt(drawPanel.getWidth()), random.nextInt(drawPanel.getHeight())));
-                }
-    
-                // Aggiungiamo pietre
-                for (int i = 0; i < rockCount; i++) {
-                    rockList.add(new Rock(random.nextInt(drawPanel.getWidth()), random.nextInt(drawPanel.getHeight())));
-                }
-    
                 logEvent("Simulation started with " + fishCount + " fish and " + rockCount + " rocks.");
                 updateStats();
                 drawPanel.repaint();
@@ -266,7 +251,23 @@ public class FishSimulationApp extends JFrame {
     }
 
     public void notifyModelChanged() {
-        // TODO
+        this.fishList = this.model.getAllAgents();
+        this.foodList = this.model.getAllFood();
+        this.rockList = this.model.getAllObstacles();
         this.repaint();
+        this.invalidate();
+        this.drawPanel.repaint();
+        System.out.println(fishList.size());
+        System.out.println(foodList.size());
+        System.out.println(rockList.size());
+        System.out.println("View refreshed!!");
+    }
+
+    public int getPanelWidth(){
+        return this.leftPanel.getWidth();
+    }
+
+    public int getPanelHeight(){
+        return this.leftPanel.getHeight();
     }
 }

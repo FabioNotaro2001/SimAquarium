@@ -12,17 +12,17 @@ import static utils.Utils.*;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Locale;
 import java.util.Random;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import env.model.AquariumModel;
 import env.model.AquariumModelImpl;
+import env.model.Position;
 import env.model.Speed;
 import env.view.FishSimulationApp;
 
-
-// TODO: inizializzare pesce, cibo e ostacoli per la simulazione
 
 /**
  * Any Jason environment "entry point" should extend
@@ -42,19 +42,37 @@ public class SimAquariumEnvironment extends Environment {
     private AquariumModel model;
     FishSimulationApp view;
 
+    private Position getRandomPositionInsideAquarium(){
+        return new Position(RAND.nextDouble() * this.model.getWidth(), RAND.nextDouble() * this.model.getHeight());
+    }
+
     @Override
     public void init(final String[] args) {
+        Locale.setDefault(Locale.UK);
+        this.model = new AquariumModelImpl();
         this.view = new FishSimulationApp(this.model);
-        view.setVisible(true);
-        this.model = new AquariumModelImpl(this.view.getWidth(), this.view.getHeight());
+        this.view.setVisible(true);
+        this.model.setAquariumDimensions(this.view.getPanelWidth() - 50, this.view.getPanelHeight() - 50);
         this.stopRequested = false;
+        for (int i = 0; i < 10; i++){
+            this.model.addObstacle(this.getRandomPositionInsideAquarium(), (RAND.nextDouble() * 0.1 + 0.02) * this.model.getHeight());
+        }
         this.foodSimulationThread = new Thread(new Runnable(){
             @Override
             public void run() {
+                int stepsDone = 0;
                 while (!stopRequested) {    // TODO: stopRequested dovrebbe essere settato premendo il bottone stop.
+                    if (stepsDone == 10) {
+                        stepsDone = 0;
+                        for(int i = 0; i < 5; i++){
+                            model.addFood(new Position(RAND.nextDouble() * model.getWidth(), 0));
+                        }
+                    } 
                     model.sinkStep();
+                    notifyModelChangedToView();
                     try {
                         Thread.sleep(2000);
+                        stepsDone++;
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
@@ -64,13 +82,13 @@ public class SimAquariumEnvironment extends Environment {
         this.foodSimulationThread.start();  // TODO: questo andrebbe nel bottone start.
     }
 
-    private void notifyModelChangedToView() { // TODO: usare dentro executeAction
+    private void notifyModelChangedToView() {
         view.notifyModelChanged();
     }
 
     private void initializeAgentIfNeeded(String agentName) {
         if (!model.containsAgent(agentName)) {
-            // TODO: aggiungere agente con posizione casuale
+            this.model.addFish(agentName, this.getRandomPositionInsideAquarium(), RAND.nextDouble() * 90 + 10); // TODO cambiare valori in costanti.
             notifyModelChangedToView();
         }
     }
@@ -114,6 +132,7 @@ public class SimAquariumEnvironment extends Environment {
      */
     @Override
     public boolean executeAction(final String ag, final Structure action) {
+        System.out.println("CALLED " + action);
         initializeAgentIfNeeded(ag);
 
         Unifier un = new Unifier();
@@ -126,6 +145,7 @@ public class SimAquariumEnvironment extends Environment {
                 y = termToDouble(un.get("Y"));
                 s = termToSpeed(un.get("Speed"));
                 this.model.moveTowards(ag, x, y, s);
+                notifyModelChangedToView();
                 return true;
 
             } catch (NoValueException e) {
@@ -137,6 +157,7 @@ public class SimAquariumEnvironment extends Environment {
             String foodId;
             try {
                 foodId = termToString(un.get("Food"));
+                notifyModelChangedToView();
                 return this.model.eat(ag, foodId);
             } catch (NoValueException e) {
                 e.printStackTrace();
@@ -168,6 +189,7 @@ public class SimAquariumEnvironment extends Environment {
         // } catch (InterruptedException ignored) { }
         // notifyModelChangedToView();
         // return result;
+        notifyModelChangedToView();
         return true; // Placeholder, replace with actual action logic
     }
 }
