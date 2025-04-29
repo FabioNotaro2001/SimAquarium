@@ -1,70 +1,70 @@
 // Beliefs.
-energy(100).
+energy(1000).
 speed(normal).
 steps(1).
 direction(1, 0).
 
-// TODO: l'aggiramento degli ostacoli deve tenere in considerazione i bordi, il fatto che il cibo cade e più ostacoli ravvicinati.
+// Goals.
 
+// TODO: l'aggiramento degli ostacoli deve tenere in considerazione i bordi, il fatto che il cibo cade e più ostacoli ravvicinati.
+// TODO: scomporre eat per fare come ci ha suggerito il prof.
 !init.
 
 +!init <- 
     utils.agent_init;
-    !move.
-
-
-// TODO: add delay in move_towards
+    !step.
 
 // Percepts.
-+food(coordinates) <- utils.find_nearest(coordinates).    // Eventualmente aggiunge la belief target_food(X, Y)
++food(Coordinates) <- utils.find_nearest(Coordinates).    // Eventualmente aggiunge la belief target_food(X, Y)
 
 +close_to_food(F) <- eat(Food).
 
-+obstacles(coordinates) <- utils.avoid_obstacles(coordinates).
++obstacles(Coordinates) <- .print("OBSTACLE!!! ", Coordinates).
+
++borders(L) <- .print("BOOOOORDER!!! ", L).
 
 +eaten : energy(E) <- 
     -has_target;
     utils.find_nearest(coordinates);
     -+energy(.max(100, E + 10)).
 
--food(_) <- 
+-has_target <- 
     utils.set_random_dir;
-    -+steps(10).
+    -+steps(30).
 
-+!move : not(has_target) & (energy(E) & E < 75) & steps(S) & direction(X, Y) <-
-    -+speed(slow);
-    utils.move_towards(X, Y, slow);
-    move_towards(X, Y, slow);
-    .print(S);
-    if (S - 1 = 0) {
-        utils.set_random_dir;
-        -+steps(10);
-    } else {
-        -+steps(S - 1);
+// Plans.
++!step : energy(E) & steps(S) <-
+    if(E <= 0){
+        .fail;
     }
-    !move.
-
-+!move : not(has_target) & steps(S) & direction(X, Y) <-
-    -+speed(normal);
-    utils.move_towards(X, Y, normal);
-    .print(S);
-    move_towards(X, Y, normal);
-    if (S - 1 = 0) {
-        utils.set_random_dir;
-        -+steps(10);
-    } else {
-        -+steps(S - 1);
+    utils.check_aquarium_borders;
+    if(obstacles(O)){
+        utils.avoid_obstacles(O);
     }
-    !move.
+    if(not(has_target)){
+        if(E >= 75){
+            !move(normal);
+        } else {
+            !move(slow);
+        }
+        if (S - 1 = 0) {
+            utils.set_random_dir;
+            -+steps(30);
+        } else {
+            -+steps(S - 1);
+        }
+    } else {
+        if(E >= 75){
+            !move(fast);
+        } else {
+            !move(faster);
+        }
+    }
+    !step. 
 
-+!move : has_target & (energy(E) & E < 75) & direction(X, Y) <-
-    -+speed(faster);
-    utils.move_towards(X, Y, faster);
-    move_towards(X, Y, faster);
-    !move.
++!move(Speed) : direction(X, Y) <-
+    -+speed(Speed);
+    utils.move_towards(X, Y, Speed);
+    move_towards(X, Y, Speed).
 
-+!move : has_target & direction(X, Y) <-
-    -+speed(fast);
-    utils.move_towards(X, Y, fast);
-    move_towards(X, Y, fast);
-    !move.
+-!step <- .print("I'm dead!").

@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public interface AquariumModel {
     void setAquariumDimensions(int width, int height);
@@ -73,6 +74,15 @@ public interface AquariumModel {
                 return Double.compare(d1, d2);
             }).findFirst();
     }
+
+    boolean isAgentCloseToBorder(String agent, Direction dir);
+    
+    default Collection<Direction> getNearbyBorders(String agent) {
+        return Stream.of(Direction.values())
+            .filter(d -> this.isAgentCloseToBorder(agent, d))
+            .collect(Collectors.toList());
+    }
+
 
     /** Get the frame-per-second value to be used by any view of the system */
     long getFPS();

@@ -160,6 +160,14 @@ public final class Vector2D {
         return length == 0 ? zero : new Vector2D(this.x / length, this.y / length);
     }
 
+    public Vector2D flipHorizontally(){
+        return new Vector2D(x, -y);
+    }
+    
+    public Vector2D flipVertically(){
+        return new Vector2D(-x, y);
+    }
+
     /**
      * Creates a new Vector2D from two Positions.
      *

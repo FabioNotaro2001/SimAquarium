@@ -2,6 +2,7 @@ package utils;
 
 import java.util.Random;
 
+import env.model.Direction;
 import env.model.Pair;
 import env.model.Position;
 import env.model.Speed;
@@ -119,5 +120,12 @@ public class Utils {
             throw new IllegalArgumentException("Cannot parse as Speed: " + term);
         }
         return Speed.valueOf(((Atom) term).getFunctor().toUpperCase());
+    }
+
+    public static Direction termToDirection(Term term) {
+        if (!term.isAtom()) {
+            throw new IllegalArgumentException("Cannot parse as Direction: " + term);
+        }
+        return Direction.valueOf(((Atom) term).getFunctor().toUpperCase());
     }
 }

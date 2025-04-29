@@ -17,7 +17,10 @@ public class set_random_dir extends DefaultInternalAction {
         Random r = new Random();
 
         Vector2D dir = Vector2D.of(r.nextDouble() * Math.PI * 2);
+
+        var lit = currentAgent.findBel(Literal.parseLiteral("direction(_, _)"), un);
         
+        currentAgent.delBel(lit);
         currentAgent.addBel(Literal.parseLiteral(String.format("direction(%f, %f)", dir.getX(), dir.getY())));
 
         return true;

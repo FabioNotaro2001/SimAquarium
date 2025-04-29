@@ -19,8 +19,10 @@ import java.util.stream.Stream;
 
 import env.model.AquariumModel;
 import env.model.AquariumModelImpl;
+import env.model.Fish;
 import env.model.Position;
 import env.model.Speed;
+import env.model.Vector2D;
 import env.view.FishSimulationApp;
 
 
@@ -54,8 +56,9 @@ public class SimAquariumEnvironment extends Environment {
         this.view.setVisible(true);
         this.model.setAquariumDimensions(this.view.getPanelWidth() - 50, this.view.getPanelHeight() - 50);
         this.stopRequested = false;
-        for (int i = 0; i < 10; i++){
-            this.model.addObstacle(this.getRandomPositionInsideAquarium(), (RAND.nextDouble() * 0.1 + 0.02) * this.model.getHeight());
+        for (int i = 0; i < 20; i++){
+            //this.model.addObstacle(this.getRandomPositionInsideAquarium(), (RAND.nextDouble() * 0.1 + 0.02) * this.model.getHeight());
+            this.model.addObstacle(this.getRandomPositionInsideAquarium(), 25);
         }
         this.foodSimulationThread = new Thread(new Runnable(){
             @Override
@@ -98,14 +101,23 @@ public class SimAquariumEnvironment extends Environment {
         // Percept cibo in range, percept per il cibo abbastanza vicino, percept per gli ostacoli in range
         initializeAgentIfNeeded(agName);
         return Stream.of(
-                foodInRangePercepts(agName),
+                foodInRangePercept(agName),
                 closestFoodPercept(agName),
-                obstaclePercepts(agName)
+                obstaclePercept(agName),
+                borderPercept(agName)
         ).flatMap(Collection::stream)
         .collect(Collectors.toList());
     }
 
-    private Collection<Literal> foodInRangePercepts(String agent) {
+    private Collection<Literal> borderPercept(String agent) {
+        var borders = model.getNearbyBorders(agent)
+                .stream()
+                .map(b -> Literal.parseLiteral(String.format("%s", b.toString().toLowerCase())))
+                .collect(ListTermImpl::new, ListTerm::add, ListTerm::addAll);
+        return Stream.of(Literal.parseLiteral(String.format("borders(%s)", borders))).collect(Collectors.toList());
+    }
+
+    private Collection<Literal> foodInRangePercept(String agent) {
         var coordinates = model.getNearbyFood(agent)
                 .stream()
                 .map(f -> Literal.parseLiteral(String.format("food_elem(%f,%f,%s)", f.getPosition().getX(), f.getPosition().getY(), f.getId())))
@@ -118,11 +130,15 @@ public class SimAquariumEnvironment extends Environment {
         return foodOpt.isPresent() ? List.of(Literal.parseLiteral(String.format("close_to_food(%s)", foodOpt.get().getId()))) : List.of();
     }
 
-    private Collection<Literal> obstaclePercepts(String agent) {
+    private Collection<Literal> obstaclePercept(String agent) {
+        Fish fish = this.model.getAgent(agent);
+
         var coordinates = this.model.getNearbyObstacles(agent)
                 .stream()
-                .map(o -> Literal.parseLiteral(String.format("obstacle(%f,%f,%f)", o.getX(), o.getY(), o.getRadius())))
+                .sorted((o1, o2) -> Double.compare(Vector2D.of(o1.getX() - fish.getX(), o1.getY() - fish.getY()).getLength(), Vector2D.of(o2.getX() - fish.getX(), o2.getY() - fish.getY()).getLength()))
+                .map(o -> Literal.parseLiteral(String.format("obstacle(%f,%f,%f)", o.getX() - fish.getX(), o.getY() - fish.getY(), o.getRadius())))
                 .collect(ListTermImpl::new, ListTerm::add, ListTerm::addAll);
+
         return Stream.of(Literal.parseLiteral(String.format("obstacles(%s)", coordinates))).collect(Collectors.toList());
     }
 
@@ -132,7 +148,6 @@ public class SimAquariumEnvironment extends Environment {
      */
     @Override
     public boolean executeAction(final String ag, final Structure action) {
-        System.out.println("CALLED " + action);
         initializeAgentIfNeeded(ag);
 
         Unifier un = new Unifier();

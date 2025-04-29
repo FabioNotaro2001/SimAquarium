@@ -172,12 +172,32 @@ public class AquariumModelImpl implements AquariumModel {
 
     @Override
     public void addFood(Position position) {
-        String id = "food-" + this.foodId++;
+        String id = "food" + this.foodId++;
         this.food.put(id, new Food(id, position));
+        if(foodId < 0){
+            foodId = 0;
+        }
     }
 
     @Override
     public void addObstacle(Position position, double radius) {
         this.obstacles.add(new Obstacle(position.getX(), position.getY(), radius));
+    }
+
+    @Override
+    public boolean isAgentCloseToBorder(String agent, Direction dir) {
+        this.ensureAgentExists(agent);
+        Fish fish = this.agents.get(agent);
+        Position fishPosition = fish.getPosition();
+        switch (dir) {
+            case LEFT:
+                return fishPosition.getX() <= fish.getRange();
+            case RIGHT:
+                return fishPosition.getX() >= this.width - fish.getRange();
+            case TOP:
+                return fishPosition.getY() <= fish.getRange();
+            default:
+                return fishPosition.getY() >= this.height - fish.getRange();   
+        }
     }
 }

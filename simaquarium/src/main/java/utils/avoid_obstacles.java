@@ -33,7 +33,8 @@ public class avoid_obstacles extends DefaultInternalAction {
         Vector2D projection = fishDir.times(dirToObstacle.times(fishDir) / fishDir.times(fishDir)); 
         Vector2D projToObstacle = dirToObstacle.minus(projection);
 
-        return projToObstacle.times(projToObstacle) <= obstacleRadius;
+        System.out.println("OSTACOLO " + (Math.sqrt(projToObstacle.times(projToObstacle)) - obstacleRadius));
+        return Math.sqrt(projToObstacle.times(projToObstacle)) <= obstacleRadius;
     }
 
     /**
@@ -54,7 +55,7 @@ public class avoid_obstacles extends DefaultInternalAction {
     @Override
     public Object execute(TransitionSystem ts, Unifier un, Term[] args) throws Exception {
         Agent currentAgent = ts.getAg();
-        Literal directionAsLiteral = currentAgent.findBel(Literal.parseLiteral("direction(X, Y)"), un);
+        Literal directionAsLiteral = currentAgent.findBel(Literal.parseLiteral("direction(_, _)"), un);
         Vector2D fishDir = literalToVector2D(directionAsLiteral);
 
         List<Term> coordinatesList = termToList(args[0]);
@@ -66,7 +67,7 @@ public class avoid_obstacles extends DefaultInternalAction {
 
         if(closestObstacleOnPath.isPresent()){
             currentAgent.delBel(directionAsLiteral);
-            Vector2D newDir = isObstacleToTheLeft(fishDir, closestObstacleOnPath.get()) ? fishDir.rotateBy(-Math.PI / 4) : fishDir.rotateBy(Math.PI / 4);
+            Vector2D newDir = isObstacleToTheLeft(fishDir, closestObstacleOnPath.get()) ? fishDir.rotateBy(-Math.PI / 2) : fishDir.rotateBy(Math.PI / 2);
             currentAgent.addBel(Literal.parseLiteral(String.format("direction(%f, %f)", newDir.getX(), newDir.getY())));
         } 
         

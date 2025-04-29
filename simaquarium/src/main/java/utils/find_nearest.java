@@ -31,20 +31,11 @@ public class find_nearest extends DefaultInternalAction {
 
         if(closestFood.isPresent()){
             currentAgent.addBel(hasTargetLiteral);
+            currentAgent.delBel(currentAgent.findBel(Literal.parseLiteral("direction(X, Y)"), un));
             currentAgent.addBel(Literal.parseLiteral(String.format("direction(%f, %f)", closestFood.get().getX(), closestFood.get().getY())));
         } 
         
-        return closestFood.isPresent();
+        return true;
     }
-
-    public static void main(String[] args) {
-        ListTerm coordinates = new ListTermImpl();
-        coordinates.add(Literal.parseLiteral("food_elem(1, 2, food1)"));
-        var elem = (Literal)coordinates.get(0);
-        System.out.println(elem.getTerm(0));
-        System.out.println(elem.getTerm(1));
-        System.out.println(elem.getTerm(2));
-    }
-
 }
 

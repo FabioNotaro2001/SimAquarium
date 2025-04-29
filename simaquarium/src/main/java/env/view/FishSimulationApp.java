@@ -194,16 +194,18 @@ public class FishSimulationApp extends JFrame {
             // Disegna rocce prima dei pesci
             for (Obstacle rock : rockList) {
                 g.setColor(Color.DARK_GRAY);
-                g.fillOval((int)rock.getX(), (int)rock.getY(), (int)rock.getRadius(), (int)rock.getRadius());
+                g.fillOval((int)(rock.getX() - rock.getRadius()), (int)(rock.getY() - rock.getRadius()), (int)rock.getRadius() * 2, (int)rock.getRadius() * 2);
             }
 
             for (Fish fish : fishList) {
                 g.setColor(Color.ORANGE);
-                g.fillOval((int)fish.getX(), (int)fish.getY(), (int)fish.getWeight(), (int)fish.getWeight()/2);
+                //g.fillOval((int)fish.getX(), (int)fish.getY(), (int)fish.getWeight(), (int)fish.getWeight()/2);
+                g.fillOval((int)(fish.getX() - 3), (int)(fish.getY() - 3), 6, 6);
             }
 
             for (Food food : foodList) {
                 g.setColor(Color.RED);
+                //TODO: aggiustare le coordinate visto che Java non è molto perspicace.
                 g.fillOval((int)food.getX(), (int)food.getY(), 5, 5);
             }
         }
@@ -257,10 +259,6 @@ public class FishSimulationApp extends JFrame {
         this.repaint();
         this.invalidate();
         this.drawPanel.repaint();
-        System.out.println(fishList.size());
-        System.out.println(foodList.size());
-        System.out.println(rockList.size());
-        System.out.println("View refreshed!!");
     }
 
     public int getPanelWidth(){

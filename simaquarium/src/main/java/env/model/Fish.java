@@ -1,6 +1,7 @@
 package env.model;
 
 public class Fish {
+    //TODO: fare due range diversi, uno per cibo e l'altro per ostacoli e bordi.
     private double weight; // in grams, between 10 and 100
     private double energy;
     private Position position;
@@ -28,7 +29,8 @@ public class Fish {
     }
     
     public double getRange() {
-        return 10 + this.weight * 5;
+        //return 10 + this.weight * 2;
+        return 200;
     }
     
     public double getBaseSpeed() {
