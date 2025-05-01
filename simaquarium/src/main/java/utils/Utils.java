@@ -46,10 +46,10 @@ public class Utils {
     }
 
     public static String termToString(Term term) throws NoValueException {
-        if(!term.isString()) {
+        if(!(term.isString() || term.isAtom())) {
             throw new IllegalArgumentException("Cannot parse as String: " + term);
         }
-        return ((StringTerm)term).getString();
+        return term.toString();
     }
 
 
@@ -112,6 +112,20 @@ public class Utils {
             );
         } catch (NoValueException e) {
             throw new IllegalArgumentException("Cannot parse as position and radius: " + literal);
+        }
+    }
+    
+    public static Pair<Direction, Double> literalToDirectionAndDistance(Literal literal) {
+        if (!literal.getTerm(0).isAtom() || !literal.getTerm(1).isNumeric()) {
+            throw new IllegalArgumentException("Cannot parse as direction and distance: " + literal);
+        }
+        try {
+            return Pair.of(
+                termToDirection(literal.getTerm(0)),
+                termToDouble(literal.getTerm(1))
+            );
+        } catch (NoValueException e) {
+            throw new IllegalArgumentException("Cannot parse as direction and distance: " + literal);
         }
     }
 

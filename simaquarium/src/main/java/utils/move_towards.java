@@ -21,12 +21,12 @@ public class move_towards extends DefaultInternalAction {
 
         Agent currentAgent = ts.getAg();
         
-        double distance = Vector2D.fromPositions(Position.zero(), new Position(x, y)).getLength();
+        // double distance = Vector2D.fromPositions(Position.zero(), new Position(x, y)).getLength();
 
         // The fish tries to eat the food
-        if (distance < 5) {
-            currentAgent.addBel(Literal.parseLiteral(String.format("close_to_food(%f, %f)", x, y)));
-        }
+        // if (distance < 5) {
+        //     currentAgent.addBel(Literal.parseLiteral(String.format("close_to_food(%f, %f)", x, y)));
+        // }
         
         Literal energyLiteral = currentAgent.findBel(Literal.parseLiteral("energy(E)"), un);
         double fishEnergy = termToDouble(energyLiteral.getTerm(0));

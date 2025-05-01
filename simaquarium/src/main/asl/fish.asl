@@ -8,6 +8,9 @@ direction(1, 0).
 
 // TODO: l'aggiramento degli ostacoli deve tenere in considerazione i bordi, il fatto che il cibo cade e più ostacoli ravvicinati.
 // TODO: scomporre eat per fare come ci ha suggerito il prof.
+
+// TODO: il pesce non cambia direzione quando vicino a ostacoli/bordo se c'è del cibo davanti (tranne che se il cibo è dentro ad un ostacolo)
+
 !init.
 
 +!init <- 
@@ -15,13 +18,20 @@ direction(1, 0).
     !step.
 
 // Percepts.
-+food(Coordinates) <- utils.find_nearest(Coordinates).    // Eventualmente aggiunge la belief target_food(X, Y)
++food(Coordinates) <- 
+    // .print("FOOD: " , Coordinates);
+    utils.find_nearest(Coordinates).    // Eventualmente aggiunge la belief target_food(X, Y)
 
-+close_to_food(F) <- eat(Food).
++close_to_food(F) : energy(E) & not(digesting) <-
+    eat(F);
+    .print("YUM: ", F, " ENERGIA: ", (E + 30));
+    -+energy(E + 30);
+    -close_to_food(F);
+    +digesting.
 
-+obstacles(Coordinates) <- .print("OBSTACLE!!! ", Coordinates).
+// +obstacles(Coordinates) <- .print("OBSTACLE!!! ", Coordinates).
 
-+borders(L) <- .print("BOOOOORDER!!! ", L).
+// +borders(L) <- .print("BOOOOORDER!!! ", L).
 
 +eaten : energy(E) <- 
     -has_target;
@@ -36,6 +46,10 @@ direction(1, 0).
 +!step : energy(E) & steps(S) <-
     if(E <= 0){
         .fail;
+    }
+    if (digesting) {
+        .wait(1000);
+        -digesting;
     }
     utils.check_aquarium_borders;
     if(obstacles(O)){

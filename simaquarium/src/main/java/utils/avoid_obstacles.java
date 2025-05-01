@@ -18,6 +18,18 @@ import jason.asSyntax.Term;
 public class avoid_obstacles extends DefaultInternalAction {
     
     /**
+     * Returns the angle between the fish's direction and firection towards the obstacle vectors.
+     * @param fishDir
+     * @param obstaclePos
+     * @return
+     */
+    private double getAngleBetweenDirectionAndObstacle(Vector2D fishDir, Position obstaclePos) {
+        Vector2D dirToObstacle = Vector2D.fromPositions(Position.zero(), obstaclePos);
+        double fishDirAngle = fishDir.angle();
+        return dirToObstacle.rotateBy(-fishDirAngle).angle();
+    }
+
+    /**
      * Checks if the obstacle is in front of fish based on its direction.
      * @param fishDir
      * @param obstaclePos
@@ -26,6 +38,9 @@ public class avoid_obstacles extends DefaultInternalAction {
      */
     private boolean isObstacleOnPath(Vector2D fishDir, Position obstaclePos, double obstacleRadius) {
         Vector2D dirToObstacle = Vector2D.fromPositions(Position.zero(), obstaclePos);
+        if (Math.abs(getAngleBetweenDirectionAndObstacle(fishDir, obstaclePos)) >= Math.PI / 2) { // Obstacle behind fish
+            return false;
+        }
         /* 
             Projection of the obstacle position onto the fish direction vector. 
             Simplified version thanks to the fish being at (0,0).
@@ -33,7 +48,8 @@ public class avoid_obstacles extends DefaultInternalAction {
         Vector2D projection = fishDir.times(dirToObstacle.times(fishDir) / fishDir.times(fishDir)); 
         Vector2D projToObstacle = dirToObstacle.minus(projection);
 
-        System.out.println("OSTACOLO " + (Math.sqrt(projToObstacle.times(projToObstacle)) - obstacleRadius));
+
+        // System.out.println("OSTACOLO " + (Math.sqrt(projToObstacle.times(projToObstacle)) - obstacleRadius));
         return Math.sqrt(projToObstacle.times(projToObstacle)) <= obstacleRadius;
     }
 
@@ -45,11 +61,12 @@ public class avoid_obstacles extends DefaultInternalAction {
      */
     private boolean isObstacleToTheLeft(Vector2D fishDir, Position obstaclePos) {
         Vector2D dirToObstacle = Vector2D.fromPositions(Position.zero(), obstaclePos);
-        double fishDirAngle = fishDir.angle();
+        
+        if (dirToObstacle.getLength() > 30) { // TODO: belief sulla distanza minima? in base alla velocità?
+            return true;
+        }
 
-        Vector2D rotatedDirToObstacle = dirToObstacle.rotateBy(-fishDirAngle);
-
-        return rotatedDirToObstacle.angle() >= 0; // A positive angle means the vector is "to the left" of the fish's direction.
+        return getAngleBetweenDirectionAndObstacle(fishDir, obstaclePos) >= 0; // A positive angle means the vector is "to the left" of the fish's direction.
     }
     
     @Override

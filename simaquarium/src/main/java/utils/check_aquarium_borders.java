@@ -8,6 +8,7 @@ import jason.asSyntax.Literal;
 import jason.asSyntax.Term;
 
 import static utils.Utils.literalToVector2D;
+import static utils.Utils.literalToDirectionAndDistance;
 import static utils.Utils.termToDirection;
 import static utils.Utils.termToList;
 
@@ -26,10 +27,15 @@ public class check_aquarium_borders extends DefaultInternalAction {
 
         List<Term> bordersList = termToList(bordersAsLiteral.getTerm(0));
         for (Term border : bordersList) {
-            Direction dir = termToDirection(border);
-            if((dir == Direction.RIGHT && fishDir.getX() > 0)|| (dir == Direction.LEFT && fishDir.getX() < 0)){
+            var b = literalToDirectionAndDistance((Literal)border);
+
+            if(b.getY() > 30) { // TODO: belief sulla distanza minima? in base alla velocità?
+                continue;
+            }
+
+            if((b.getX() == Direction.RIGHT && fishDir.getX() > 0)|| (b.getX() == Direction.LEFT && fishDir.getX() < 0)){
                 fishDir = fishDir.flipVertically();
-            } else if((dir == Direction.BOTTOM && fishDir.getY() > 0)|| (dir == Direction.TOP && fishDir.getY() < 0))  {
+            } else if((b.getX() == Direction.BOTTOM && fishDir.getY() > 0)|| (b.getX() == Direction.TOP && fishDir.getY() < 0))  {
                 fishDir = fishDir.flipHorizontally();
             }
         }

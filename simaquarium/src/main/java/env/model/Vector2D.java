@@ -136,7 +136,7 @@ public final class Vector2D {
     /**
      * Rotates the vector counterclockwise by an angle.
      *
-     * @param angle the angle of rotation
+     * @param angle the angle of rotation in radians
      * @return a new resulting Vector2D
      */
     public Vector2D rotateBy(double angle) {

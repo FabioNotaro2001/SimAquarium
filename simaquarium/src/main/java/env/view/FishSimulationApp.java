@@ -7,6 +7,7 @@ import env.model.Fish;
 import env.model.Food;
 import env.model.Obstacle;
 import env.model.Position;
+import utils.Utils;
 
 import java.awt.*;
 import java.util.Random;
@@ -23,6 +24,8 @@ public class FishSimulationApp extends JFrame {
     private Random random = new Random();
     private AquariumModel model;
     private JPanel leftPanel;
+
+    private static final int FPS = 30;
 
     public FishSimulationApp(AquariumModel model) {
         this.model = model;
@@ -82,12 +85,12 @@ public class FishSimulationApp extends JFrame {
         splitPane.setEnabled(false);
 
         add(splitPane);
-    
+
         // --- Eventi Bottoni ---
         startButton.addActionListener(e -> {
             openStartDialog();
-            drawPanel.repaint(); 
-            drawPanel.revalidate(); 
+            drawPanel.repaint();
+            drawPanel.revalidate();
             timer.start();
             logEvent("Simulation started");
         });
@@ -99,21 +102,43 @@ public class FishSimulationApp extends JFrame {
 
         feeder.addActionListener(e -> {
             int x = random.nextInt(drawPanel.getWidth() - 10); // un po' di margine
-            for(int i = 0; i < 5; i++){
-                model.addFood(new Position(new Random().nextDouble() * model.getWidth(), 0));
+            for (int i = 0; i < 5; i++) {
+                model.addFood(new Position((Utils.RAND.nextDouble() * 0.8 + 0.1) * drawPanel.getWidth(), 0));
             }
-        
+
             logEvent("Food dropped");
             updateStats();
-            drawPanel.repaint(); 
+            drawPanel.repaint();
             drawPanel.revalidate();
-        });   
-        
+        });
+
+        Thread t = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while (true) {
+                    long loopStartTime = System.currentTimeMillis();
+
+                    SwingUtilities.invokeLater(() -> drawPanel.repaint());
+                    sync(loopStartTime);
+                }
+            }
+
+            private void sync(long loopStartTime) {
+                double loopSlot = 1.0 / FPS;
+                double endTime = loopStartTime + loopSlot; 
+                while(System.currentTimeMillis() < endTime) {
+                    try {
+                        Thread.sleep(1);
+                    } catch (InterruptedException ie) {}
+                }
+             }
+        });
+        t.start();
     }
 
     private void updateStats() {
         statsArea.setText("Number of Fish: " + fishList.size() + "\n"
-                        + "Survival Rate: " + (fishList.isEmpty() ? 0 : 100) + "%");
+                + "Survival Rate: " + (fishList.isEmpty() ? 0 : 100) + "%");
     }
 
     private void logEvent(String event) {
@@ -121,69 +146,69 @@ public class FishSimulationApp extends JFrame {
     }
 
     // class Fish {
-    //     Random random = new Random();
-    //     int x, y;
-    //     int dx, dy;
-    //     int size = 5 + random.nextInt(30);
+    // Random random = new Random();
+    // int x, y;
+    // int dx, dy;
+    // int size = 5 + random.nextInt(30);
 
-    //     Fish(int x, int y) {
-    //         this.x = x;
-    //         this.y = y;
-    //         this.dx = random.nextInt(5) + 1;
-    //         this.dy = random.nextInt(5) + 1;
-    //     }
+    // Fish(int x, int y) {
+    // this.x = x;
+    // this.y = y;
+    // this.dx = random.nextInt(5) + 1;
+    // this.dy = random.nextInt(5) + 1;
+    // }
 
-    //     void move() {
-    //         x += dx;
-    //         y += dy;
-    //         if (x < 0 || x > drawPanel.getWidth() - size) dx = -dx;
-    //         if (y < 0 || y > drawPanel.getHeight() - size) dy = -dy;
-    //     }
+    // void move() {
+    // x += dx;
+    // y += dy;
+    // if (x < 0 || x > drawPanel.getWidth() - size) dx = -dx;
+    // if (y < 0 || y > drawPanel.getHeight() - size) dy = -dy;
+    // }
 
-    //     void draw(Graphics g) {
-    //         g.setColor(Color.ORANGE);
-    //         g.fillOval(x, y, size, size/2);
-    //     }
+    // void draw(Graphics g) {
+    // g.setColor(Color.ORANGE);
+    // g.fillOval(x, y, size, size/2);
+    // }
     // }
 
     // class Rock {
-    //     int x, y;
-    //     int size = 30;
-    
-    //     Rock(int x, int y) {
-    //         this.x = x;
-    //         this.y = y;
-    //     }
-    
-    //     void draw(Graphics g) {
-    //         g.setColor(Color.DARK_GRAY);
-    //         g.fillOval(x, y, size, size);
-    //     }
-    // }    
+    // int x, y;
+    // int size = 30;
+
+    // Rock(int x, int y) {
+    // this.x = x;
+    // this.y = y;
+    // }
+
+    // void draw(Graphics g) {
+    // g.setColor(Color.DARK_GRAY);
+    // g.fillOval(x, y, size, size);
+    // }
+    // }
 
     // class Food {
-    //     int x, y;
-    //     int size = 8;
-    //     int speed = 3;
-    
-    //     Food(int x) {
-    //         this.x = x;
-    //         this.y = 0; // inizia in alto
-    //     }
-    
-    //     void move() {
-    //         y += speed;
-    //     }
-    
-    //     boolean isOutOfBounds(int panelHeight) {
-    //         return y > panelHeight;
-    //     }
-    
-    //     void draw(Graphics g) {
-    //         g.setColor(Color.PINK);
-    //         g.fillOval(x, y, size, size);
-    //     }
-    // }    
+    // int x, y;
+    // int size = 8;
+    // int speed = 3;
+
+    // Food(int x) {
+    // this.x = x;
+    // this.y = 0; // inizia in alto
+    // }
+
+    // void move() {
+    // y += speed;
+    // }
+
+    // boolean isOutOfBounds(int panelHeight) {
+    // return y > panelHeight;
+    // }
+
+    // void draw(Graphics g) {
+    // g.setColor(Color.PINK);
+    // g.fillOval(x, y, size, size);
+    // }
+    // }
 
     class DrawPanel extends JPanel {
         // --- Panel che disegna i pesci ---
@@ -194,19 +219,24 @@ public class FishSimulationApp extends JFrame {
             // Disegna rocce prima dei pesci
             for (Obstacle rock : rockList) {
                 g.setColor(Color.DARK_GRAY);
-                g.fillOval((int)(rock.getX() - rock.getRadius()), (int)(rock.getY() - rock.getRadius()), (int)rock.getRadius() * 2, (int)rock.getRadius() * 2);
+                g.fillOval((int) (rock.getX() - rock.getRadius()), (int) (rock.getY() - rock.getRadius()),
+                        (int) rock.getRadius() * 2, (int) rock.getRadius() * 2);
             }
 
             for (Fish fish : fishList) {
                 g.setColor(Color.ORANGE);
-                //g.fillOval((int)fish.getX(), (int)fish.getY(), (int)fish.getWeight(), (int)fish.getWeight()/2);
-                g.fillOval((int)(fish.getX() - 3), (int)(fish.getY() - 3), 6, 6);
+                // g.fillOval((int)fish.getX(), (int)fish.getY(), (int)fish.getWeight(),
+                // (int)fish.getWeight()/2);
+                g.fillOval((int) (fish.getX() - 5), (int) (fish.getY() - 5), 10, 10);
+
+                g.setColor(Color.BLUE);
+                g.drawLine((int) fish.getX(), (int) fish.getY(), (int) (fish.getX() + fish.getDirX() * 100),
+                        (int) (fish.getY() + fish.getDirY() * 100));
             }
 
             for (Food food : foodList) {
                 g.setColor(Color.RED);
-                //TODO: aggiustare le coordinate visto che Java non è molto perspicace.
-                g.fillOval((int)food.getX(), (int)food.getY(), 5, 5);
+                g.fillOval((int) food.getX() - 5, (int) food.getY() - 5, 10, 10);
             }
         }
     }
@@ -216,56 +246,62 @@ public class FishSimulationApp extends JFrame {
         dialog.setSize(300, 200);
         dialog.setLocationRelativeTo(this);
         dialog.setLayout(new GridLayout(4, 2, 10, 10));
-    
+
         JLabel fishLabel = new JLabel("Number of Fish:");
         JTextField fishField = new JTextField("10");
-    
+
         JLabel rockLabel = new JLabel("Number of Rocks:");
         JTextField rockField = new JTextField("5");
-    
+
         JButton startSimButton = new JButton("Start Simulation");
-    
+
         dialog.add(fishLabel);
         dialog.add(fishField);
         dialog.add(rockLabel);
         dialog.add(rockField);
         dialog.add(new JLabel()); // placeholder
         dialog.add(startSimButton);
-    
+
         startSimButton.addActionListener(ev -> {
             try {
                 int fishCount = Integer.parseInt(fishField.getText());
                 int rockCount = Integer.parseInt(rockField.getText());
-    
+
                 logEvent("Simulation started with " + fishCount + " fish and " + rockCount + " rocks.");
                 updateStats();
                 drawPanel.repaint();
                 timer.start();
-    
+
                 dialog.dispose();
-    
+
             } catch (NumberFormatException ex) {
                 JOptionPane.showMessageDialog(dialog, "Please enter valid numbers.");
             }
         });
-    
+
         dialog.setVisible(true);
     }
+
+    long lastRepaint = System.currentTimeMillis();
 
     public void notifyModelChanged() {
         this.fishList = this.model.getAllAgents();
         this.foodList = this.model.getAllFood();
         this.rockList = this.model.getAllObstacles();
-        this.repaint();
-        this.invalidate();
-        this.drawPanel.repaint();
+
+        long now = System.currentTimeMillis();
+        if (now - lastRepaint >= 16) {
+            lastRepaint = now;
+            // this.drawPanel.repaint();
+        }
+        // this.invalidate();
     }
 
-    public int getPanelWidth(){
-        return this.leftPanel.getWidth();
+    public int getPanelWidth() {
+        return this.drawPanel.getWidth();
     }
 
-    public int getPanelHeight(){
-        return this.leftPanel.getHeight();
+    public int getPanelHeight() {
+        return this.drawPanel.getHeight();
     }
 }

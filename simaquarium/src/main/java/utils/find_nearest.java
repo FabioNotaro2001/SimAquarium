@@ -30,8 +30,8 @@ public class find_nearest extends DefaultInternalAction {
         }
 
         if(closestFood.isPresent()){
-            currentAgent.addBel(hasTargetLiteral);
-            currentAgent.delBel(currentAgent.findBel(Literal.parseLiteral("direction(X, Y)"), un));
+            currentAgent.addBel(Literal.parseLiteral("has_target"));
+            currentAgent.delBel(currentAgent.findBel(Literal.parseLiteral("direction(_, _)"), un));
             currentAgent.addBel(Literal.parseLiteral(String.format("direction(%f, %f)", closestFood.get().getX(), closestFood.get().getY())));
         } 
         

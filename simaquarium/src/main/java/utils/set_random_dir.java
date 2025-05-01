@@ -6,6 +6,11 @@ import jason.asSemantics.TransitionSystem;
 import jason.asSemantics.Unifier;
 import jason.asSyntax.Literal;
 import jason.asSyntax.Term;
+
+import static utils.Utils.literalToDirectionAndDistance;
+import static utils.Utils.literalToVector2D;
+import static utils.Utils.termToDirection;
+
 import java.util.Random;
 
 import env.model.Vector2D;
@@ -16,12 +21,11 @@ public class set_random_dir extends DefaultInternalAction {
         Agent currentAgent = ts.getAg();
         Random r = new Random();
 
-        Vector2D dir = Vector2D.of(r.nextDouble() * Math.PI * 2);
-
         var lit = currentAgent.findBel(Literal.parseLiteral("direction(_, _)"), un);
+        Vector2D fishDir = literalToVector2D(lit).rotateBy(Utils.RAND.nextDouble() * Math.PI / 4);
         
         currentAgent.delBel(lit);
-        currentAgent.addBel(Literal.parseLiteral(String.format("direction(%f, %f)", dir.getX(), dir.getY())));
+        currentAgent.addBel(Literal.parseLiteral(String.format("direction(%f, %f)", fishDir.getX(), fishDir.getY())));
 
         return true;
     }

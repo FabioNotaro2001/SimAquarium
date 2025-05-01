@@ -27,8 +27,8 @@ public class Food {
         return new Position(getX(), getY());
     }
 
-    public void sink() {
-        this.position.setY(Math.max(0, this.getY() - 1));
+    public void sink() { // FIXME: implementare nel model
+        this.position.setY(Math.max(0, this.getY() + 20));
     }
 
 }
