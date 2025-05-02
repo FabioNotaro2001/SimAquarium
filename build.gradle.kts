@@ -44,4 +44,11 @@ subprojects {
             javaLauncher.set(javaToolchains.launcherFor(java.toolchain))
         }
     }
+    tasks.register<JavaExec>("runCustomMas") {
+            group = "run"
+            classpath = sourceSets.getByName("main").runtimeClasspath
+            mainClass.set("env.view.SimulationSettingsGUI")
+            standardInput = System.`in`
+            javaLauncher.set(javaToolchains.launcherFor(java.toolchain))
+        }
 }

@@ -10,7 +10,6 @@ import env.model.Position;
 import utils.Utils;
 
 import java.awt.*;
-import java.util.Random;
 import java.util.Set;
 
 public class FishSimulationApp extends JFrame {
@@ -21,7 +20,6 @@ public class FishSimulationApp extends JFrame {
     private Set<Fish> fishList;
     private Set<Obstacle> rockList;
     private Set<Food> foodList;
-    private Random random = new Random();
     private AquariumModel model;
     private JPanel leftPanel;
 
@@ -101,7 +99,6 @@ public class FishSimulationApp extends JFrame {
         });
 
         feeder.addActionListener(e -> {
-            int x = random.nextInt(drawPanel.getWidth() - 10); // un po' di margine
             for (int i = 0; i < 5; i++) {
                 model.addFood(new Position((Utils.RAND.nextDouble() * 0.8 + 0.1) * drawPanel.getWidth(), 0));
             }

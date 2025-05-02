@@ -25,12 +25,16 @@ public class AquariumModelImpl implements AquariumModel {
 
     @Override
     public boolean containsAgent(String name) {
-        return agents.containsKey(name);
+        synchronized(this.agents){
+            return agents.containsKey(name);
+        }
     }
 
     @Override
     public Set<Fish> getAllAgents() {
-        return new HashSet<>(agents.values());
+        synchronized(this.agents){
+            return new HashSet<>(agents.values());
+        }
     }
 
     @Override
@@ -66,27 +70,37 @@ public class AquariumModelImpl implements AquariumModel {
 
     @Override
     public Set<Food> getAllFood() {
-        return new HashSet<>(this.food.values());
+        synchronized(this.food){
+            return new HashSet<>(this.food.values());
+        }
     }
 
     @Override
     public Fish getAgent(String agent) {
-        this.ensureAgentExists(agent);
-        return this.agents.get(agent);
+        synchronized(this.agents){
+            this.ensureAgentExists(agent);
+            return this.agents.get(agent);
+        }
     }
 
     @Override
     public boolean isAgentCloseToFood(String agent, String food) {
-        this.ensureAgentExists(agent);
-        Position foodPos = this.food.get(food).getPosition();
-        Fish fish = this.agents.get(agent);
-        Vector2D dir = Vector2D.fromPositions(fish.getPosition(), foodPos);
-        return dir.getLength() <= fish.getRange();
+        synchronized(this){
+            this.ensureAgentExists(agent);
+            Food f = this.food.get(food);
+            if(f == null){
+                return false;
+            }
+            Position foodPos = f.getPosition();
+            Fish fish = this.agents.get(agent);
+            Vector2D dir = Vector2D.fromPositions(fish.getPosition(), foodPos);
+            return dir.getLength() <= fish.getRange();
+        }
     }
 
     @Override
     public void moveTowards(String agent, double x, double y, Speed speed) {
-        synchronized(this){
+        synchronized(this.agents){
             this.ensureAgentExists(agent);
             Fish fish = this.agents.get(agent);
             Position pos = fish.getPosition();
@@ -99,7 +113,7 @@ public class AquariumModelImpl implements AquariumModel {
 
     @Override
     public void sink(String food) {
-        synchronized(this){
+        synchronized(this.food){
             if(!this.food.containsKey(food)){
                 throw new IllegalArgumentException("No such food: " + food);
             }
@@ -109,7 +123,7 @@ public class AquariumModelImpl implements AquariumModel {
 
     @Override
     public Optional<Food> getFoodByPosition(double x, double y) {
-        synchronized(this){
+        synchronized(this.food){
             return this.food.values().stream()
                                         .filter(f -> f.getPosition().getX() == x && f.getPosition().getY() == y)
                                         .findFirst();
@@ -123,11 +137,13 @@ public class AquariumModelImpl implements AquariumModel {
 
     @Override
     public boolean isAgentCloseToObstacle(String agent, Obstacle obstacle) {
-        this.ensureAgentExists(agent);
-        Position obstaclePos = new Position(obstacle.getX(), obstacle.getY());
-        Fish fish = this.agents.get(agent);
-        Vector2D dir = Vector2D.fromPositions(fish.getPosition(), obstaclePos);
-        return dir.getLength() <= fish.getRange() + obstacle.getRadius();
+        synchronized(this.agents){
+            this.ensureAgentExists(agent);
+            Position obstaclePos = new Position(obstacle.getX(), obstacle.getY());
+            Fish fish = this.agents.get(agent);
+            Vector2D dir = Vector2D.fromPositions(fish.getPosition(), obstaclePos);
+            return dir.getLength() <= fish.getRange() + obstacle.getRadius();
+        }
     }
 
     @Override
@@ -154,28 +170,34 @@ public class AquariumModelImpl implements AquariumModel {
 
     @Override
     public boolean canAgentEatFood(String agent, String foodId) {
-        this.ensureAgentExists(agent);
-        if (!this.food.containsKey(foodId)) {
-            return false;
+        synchronized(this){
+            this.ensureAgentExists(agent);
+            if (!this.food.containsKey(foodId)) {
+                return false;
+            }
+            Fish fish = this.agents.get(agent);
+            Food food = this.food.get(foodId);
+    
+            Vector2D dir = Vector2D.fromPositions(fish.getPosition(), food.getPosition());
+            return dir.getLength() <= fish.getEatingRange();
         }
-        Fish fish = this.agents.get(agent);
-        Food food = this.food.get(foodId);
-
-        Vector2D dir = Vector2D.fromPositions(fish.getPosition(), food.getPosition());
-        return dir.getLength() <= fish.getEatingRange();
     }
 
     @Override
     public void addFish(String agentName, Position position, double weight) {
-        this.agents.put(agentName, new Fish(weight, position));
+        synchronized(this.agents){
+            this.agents.put(agentName, new Fish(weight, position));
+        }
     }
 
     @Override
     public void addFood(Position position) {
-        String id = "food" + this.foodId++;
-        this.food.put(id, new Food(id, position));
-        if(foodId < 0){
-            foodId = 0;
+        synchronized(this.food){
+            String id = "food" + this.foodId++;
+            this.food.put(id, new Food(id, position));
+            if(foodId < 0){
+                foodId = 0;
+            }
         }
     }
 
@@ -186,18 +208,20 @@ public class AquariumModelImpl implements AquariumModel {
 
     @Override
     public boolean isAgentCloseToBorder(String agent, Direction dir) {
-        this.ensureAgentExists(agent);
-        Fish fish = this.agents.get(agent);
-        Position fishPosition = fish.getPosition();
-        switch (dir) {
-            case LEFT:
-                return fishPosition.getX() <= fish.getRange();
-            case RIGHT:
-                return fishPosition.getX() >= this.width - fish.getRange();
-            case TOP:
-                return fishPosition.getY() <= fish.getRange();
-            default:
-                return fishPosition.getY() >= this.height - fish.getRange();   
+        synchronized(this.agents){
+            this.ensureAgentExists(agent);
+            Fish fish = this.agents.get(agent);
+            Position fishPosition = fish.getPosition();
+            switch (dir) {
+                case LEFT:
+                    return fishPosition.getX() <= fish.getRange();
+                case RIGHT:
+                    return fishPosition.getX() >= this.width - fish.getRange();
+                case TOP:
+                    return fishPosition.getY() <= fish.getRange();
+                default:
+                    return fishPosition.getY() >= this.height - fish.getRange();   
+            }
         }
     }
 }

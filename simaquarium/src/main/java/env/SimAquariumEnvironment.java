@@ -17,6 +17,7 @@ import java.util.Random;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import env.model.Amount;
 import env.model.AquariumModel;
 import env.model.AquariumModelImpl;
 import env.model.Fish;
@@ -35,6 +36,9 @@ public class SimAquariumEnvironment extends Environment {
     private static final Random RAND = new Random();
     private Thread foodSimulationThread;
     private boolean stopRequested;
+    private int foodQuantity;
+    private int numberOfObstacles;
+
 
 
     // Action literals.
@@ -50,32 +54,60 @@ public class SimAquariumEnvironment extends Environment {
 
     @Override
     public void init(final String[] args) {
+        switch (Amount.valueOf(args[0])) {
+            //TODO se little ne dovrebbero scendere 3 invece ne scendono 5.
+            case LITTLE:
+                this.foodQuantity = 3;
+                break;
+            case MANY:
+                this.foodQuantity = 10;
+                break;
+            default:
+                this.foodQuantity = 5;
+                break;
+        }
+
+        switch (Amount.valueOf(args[1])) {
+            case LITTLE:
+                this.numberOfObstacles = 5;
+                break;
+            case MANY:
+                this.numberOfObstacles = 20;
+                break;
+            default:
+                this.numberOfObstacles = 10;
+                break;
+        }
+        System.out.println(String.join(",", args));
         Locale.setDefault(Locale.UK);
         this.model = new AquariumModelImpl();
         this.view = new FishSimulationApp(this.model);
         this.view.setVisible(true);
         this.model.setAquariumDimensions(this.view.getPanelWidth(), this.view.getPanelHeight());
         this.stopRequested = false;
-        for (int i = 0; i < 20; i++){
+        for (int i = 0; i < this.numberOfObstacles; i++){
             //this.model.addObstacle(this.getRandomPositionInsideAquarium(), (RAND.nextDouble() * 0.1 + 0.02) * this.model.getHeight());
             this.model.addObstacle(this.getRandomPositionInsideAquarium(), 25);
         }
         this.foodSimulationThread = new Thread(new Runnable(){
             @Override
             public void run() {
-                int stepsDone = 0;
+                long untilNextFoodDrop = 5000;
+                long lastCycle = System.currentTimeMillis();
                 while (!stopRequested) {    // TODO: stopRequested dovrebbe essere settato premendo il bottone stop.
-                    if (stepsDone == 10) {
-                        stepsDone = 0;
-                        for(int i = 0; i < 5; i++){
+                    long time = System.currentTimeMillis();
+                    untilNextFoodDrop -= time-lastCycle;
+                    lastCycle = time;
+                    if (untilNextFoodDrop <= 0) {
+                        untilNextFoodDrop += 10000;
+                        for(int i = 0; i < foodQuantity; i++){
                             model.addFood(new Position((RAND.nextDouble() * 0.8 + 0.1) * model.getWidth(), 0));
                         }
                     } 
                     model.sinkStep();
                     notifyModelChangedToView();
                     try {
-                        Thread.sleep(2000);
-                        stepsDone++;
+                        Thread.sleep(200);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
