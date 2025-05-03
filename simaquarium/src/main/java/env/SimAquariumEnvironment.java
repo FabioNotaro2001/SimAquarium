@@ -257,6 +257,6 @@ public class SimAquariumEnvironment extends Environment {
         // notifyModelChangedToView();
         // return result;
         notifyModelChangedToView();
-        return true; // Placeholder, replace with actual action logic
+        return false; // Placeholder, replace with actual action logic
     }
 }

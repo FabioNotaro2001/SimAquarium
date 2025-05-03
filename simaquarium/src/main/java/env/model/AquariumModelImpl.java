@@ -117,7 +117,10 @@ public class AquariumModelImpl implements AquariumModel {
             if(!this.food.containsKey(food)){
                 throw new IllegalArgumentException("No such food: " + food);
             }
+
             this.food.get(food).sink();
+            
+            
         }
     }
 
@@ -194,7 +197,7 @@ public class AquariumModelImpl implements AquariumModel {
     public void addFood(Position position) {
         synchronized(this.food){
             String id = "food" + this.foodId++;
-            this.food.put(id, new Food(id, position));
+            this.food.put(id, new Food(id, position, height-7));
             if(foodId < 0){
                 foodId = 0;
             }

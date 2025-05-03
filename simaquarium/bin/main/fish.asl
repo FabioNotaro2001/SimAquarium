@@ -22,7 +22,8 @@ direction(1, 0).
     // .print("FOOD: " , Coordinates);
     utils.find_nearest(Coordinates).    // Eventualmente aggiunge la belief target_food(X, Y)
 
-+close_to_food(F) : energy(E) & not(digesting) <-
++close_to_food(F) : energy(E) <-
+    .wait(not(digesting));
     eat(F);
     .print("YUM: ", F, " ENERGIA: ", (E + 30));
     -+energy(E + 30);
@@ -33,12 +34,7 @@ direction(1, 0).
 
 // +borders(L) <- .print("BOOOOORDER!!! ", L).
 
-+eaten : energy(E) <- 
-    -has_target;
-    utils.find_nearest(coordinates);
-    -+energy(.max(100, E + 10)).
-
--has_target <- 
+-has_target(_, _) <- 
     utils.set_random_dir;
     -+steps(30).
 
@@ -51,11 +47,14 @@ direction(1, 0).
         .wait(1000);
         -digesting;
     }
+    if(has_target(X, Y)){
+        -+direction(X, Y);
+    }
     utils.check_aquarium_borders;
     if(obstacles(O)){
         utils.avoid_obstacles(O);
     }
-    if(not(has_target)){
+    if(not(has_target(_, _))){
         if(E >= 75){
             !move(normal);
         } else {
