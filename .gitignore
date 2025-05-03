@@ -22,6 +22,8 @@
 # Gradle files
 .gradle/
 
+.idea/
+
 # Build directory
 build/
 
