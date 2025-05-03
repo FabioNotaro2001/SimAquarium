@@ -7,18 +7,18 @@ package env.model;
  * @param <Y> the type of the second element in the pair
  */
 public class Pair<X, Y> {
-    private X x;
-    private Y y;
+    private X first;
+    private Y second;
 
     /**
      * Constructs a Pair object with the specified values for x and y.
      *
-     * @param x the first value of the pair
-     * @param y the second value of the pair
+     * @param first the first value of the pair
+     * @param second the second value of the pair
      */
-    public Pair(X x, Y y){
-        this.x = x;
-        this.y = y;
+    public Pair(X first, Y second){
+        this.first = first;
+        this.second = second;
     }
 
     /**
@@ -26,8 +26,8 @@ public class Pair<X, Y> {
      *
      * @return the value of the x-coordinate of type X
      */
-    public X getX(){
-        return this.x;
+    public X getFirst(){
+        return this.first;
     }
 
     /**
@@ -35,8 +35,8 @@ public class Pair<X, Y> {
      *
      * @return the value of the y-coordinate or second element of type Y
      */
-    public Y getY(){
-        return this.y;
+    public Y getSecond(){
+        return this.second;
     }
 
     /**
@@ -44,8 +44,8 @@ public class Pair<X, Y> {
      *
      * @param newX the new value to set for x
      */
-    public void setX(X newX){
-        this.x= newX;
+    public void setFirst(X newX){
+        this.first= newX;
     }
 
     /**
@@ -53,8 +53,8 @@ public class Pair<X, Y> {
      *
      * @param newY the new value to set for y
      */
-    public void setY(Y newY){
-        this.y= newY;
+    public void setSecond(Y newY){
+        this.second= newY;
     }
 
 
@@ -63,11 +63,11 @@ public class Pair<X, Y> {
      *
      * @param <X> the type of the first element in the pair
      * @param <Y> the type of the second element in the pair
-     * @param x   the first element of the pair
-     * @param y   the second element of the pair
+     * @param first   the first element of the pair
+     * @param second   the second element of the pair
      * @return a new Pair containing the specified elements
      */
-    public static <X, Y> Pair<X, Y> of(X x, Y y){
-        return new Pair<>(x, y);
+    public static <X, Y> Pair<X, Y> of(X first, Y second){
+        return new Pair<>(first, second);
     }
 }

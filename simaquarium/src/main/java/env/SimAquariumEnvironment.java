@@ -86,8 +86,8 @@ public class SimAquariumEnvironment extends Environment {
         this.model.setAquariumDimensions(this.view.getPanelWidth(), this.view.getPanelHeight());
         this.stopRequested = false;
         for (int i = 0; i < this.numberOfObstacles; i++){
-            //this.model.addObstacle(this.getRandomPositionInsideAquarium(), (RAND.nextDouble() * 0.1 + 0.02) * this.model.getHeight());
-            this.model.addObstacle(this.getRandomPositionInsideAquarium(), 25);
+            this.model.addObstacle(this.getRandomPositionInsideAquarium(), (RAND.nextDouble() * 0.1 + 0.02) * this.model.getHeight());
+            // this.model.addObstacle(this.getRandomPositionInsideAquarium(), 25);
         }
         this.foodSimulationThread = new Thread(new Runnable(){
             @Override

@@ -48,8 +48,11 @@ public interface AquariumModel {
 
     boolean isAgentCloseToFood(String agent, String food);
 
+    boolean isFoodWithinObstacle(String food);
+    
     default Collection<Food> getNearbyFood(String agent) {
         return getAllFood().stream()
+            .filter(food -> !isFoodWithinObstacle(food.getId()))
             .filter(food -> this.isAgentCloseToFood(agent, food.getId()))
             .collect(Collectors.toList());
     }

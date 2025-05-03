@@ -99,6 +99,18 @@ public class AquariumModelImpl implements AquariumModel {
     }
 
     @Override
+    public boolean isFoodWithinObstacle(String food) {
+        synchronized(this){
+            Food f = this.food.get(food);
+            if(f == null){
+                return false;
+            }
+            Position foodPos = f.getPosition();
+            return this.obstacles.stream().anyMatch(o -> Vector2D.fromPositions(foodPos, o.getPosition()).getLength() < o.getRadius());
+        }
+    }
+
+    @Override
     public void moveTowards(String agent, double x, double y, Speed speed) {
         synchronized(this.agents){
             this.ensureAgentExists(agent);
