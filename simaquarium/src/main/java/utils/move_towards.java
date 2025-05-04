@@ -2,9 +2,7 @@ package utils;
 
 import static utils.Utils.*;
 
-import env.model.Position;
 import env.model.Speed;
-import env.model.Vector2D;
 import jason.asSemantics.Agent;
 import jason.asSemantics.DefaultInternalAction;
 import jason.asSemantics.TransitionSystem;

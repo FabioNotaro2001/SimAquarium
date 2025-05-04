@@ -18,6 +18,7 @@ public class SimulationLauncher extends RunLocalMAS{
                 "\tagents: fish #%d;\r\n" + //
                 "\taslSourcePath: \"src/main/asl\";\r\n" + //
                 "}";
+    static SimulationLauncher mas;
     
 
     public SimulationLauncher(){
@@ -26,6 +27,10 @@ public class SimulationLauncher extends RunLocalMAS{
 
     public SimAquariumEnvironment getEnvironment(){
         return (SimAquariumEnvironment)(this.getEnvironmentInfraTier().getUserEnvironment());
+    }
+
+    public static RunLocalMAS getLocalMAS(){
+        return mas;
     }
 
     public static SimulationLauncher launchNew(int numberOfAgents, String foodQuantity, String numberOfObstacles) throws IOException, JasonException{
@@ -40,7 +45,7 @@ public class SimulationLauncher extends RunLocalMAS{
             e.printStackTrace();
         }
         
-        SimulationLauncher mas = new SimulationLauncher();
+        mas = new SimulationLauncher();
         mas.init(new String[]{NEW_FILE_NAME});
         mas.registerMBean();
         mas.registerInRMI();

@@ -9,10 +9,8 @@ import jason.asSyntax.Term;
 
 import static utils.Utils.literalToVector2D;
 import static utils.Utils.literalToDirectionAndDistance;
-import static utils.Utils.termToDirection;
 import static utils.Utils.termToList;
 
-import java.lang.StackWalker.Option;
 import java.util.List;
 import java.util.Optional;
 

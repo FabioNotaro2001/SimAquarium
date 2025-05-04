@@ -4,6 +4,7 @@ import java.util.*;
 
 public class AquariumModelImpl implements AquariumModel {
     private final Map<String, Fish> agents = Collections.synchronizedMap(new HashMap<>());
+    private final Set<String> stoppedAgents = Collections.synchronizedSet(new HashSet<>());
     private final Map<String, Food> food = Collections.synchronizedMap(new HashMap<>());
     private final Set<Fish> recentEaters = Collections.synchronizedSet(new HashSet<>());
     private List<Obstacle> obstacles;
@@ -11,11 +12,13 @@ public class AquariumModelImpl implements AquariumModel {
     private int height;
     private int fps;
     private long foodId;
+    private int numberOfFoodEaten;
 
     public AquariumModelImpl() {
         this.fps = 20;
         this.obstacles = Collections.synchronizedList(new ArrayList<>());
         this.foodId = 0;
+        this.numberOfFoodEaten = 0;
     }
 
     public void setAquariumDimensions(int width, int height){
@@ -37,6 +40,14 @@ public class AquariumModelImpl implements AquariumModel {
         }
     }
 
+    public void removeAgent(String name){
+        synchronized(this.agents){
+            this.ensureAgentExists(name);
+            this.agents.remove(name);
+            this.stoppedAgents.add(name);
+        }
+    }
+
     @Override
     public int getWidth() {
         return width;
@@ -50,6 +61,10 @@ public class AquariumModelImpl implements AquariumModel {
     @Override
     public boolean isPositionInside(double x, double y) {
         return x >= 0 && x < width && y >= 0 && y < height ;
+    }
+
+    public boolean isAgentStopped(String agent){
+        return this.stoppedAgents.contains(agent);
     }
 
     private void ensureAgentExists(String agent) {
@@ -179,6 +194,7 @@ public class AquariumModelImpl implements AquariumModel {
                 this.recentEaters.remove(fish);
                 this.recentEaters.add(fish);
             }
+            this.numberOfFoodEaten++;
             return true;
         }
     }
@@ -238,5 +254,10 @@ public class AquariumModelImpl implements AquariumModel {
                     return fishPosition.getY() >= this.height - fish.getRange();   
             }
         }
+    }
+
+    @Override
+    public int getNumberOfFoodEaten() {
+        return this.numberOfFoodEaten;
     }
 }

@@ -39,11 +39,10 @@ public class SimAquariumEnvironment extends Environment {
     private int foodQuantity;
     private int numberOfObstacles;
 
-
-
     // Action literals.
     public static final Literal moveTowards = Literal.parseLiteral("move_towards(X, Y, Speed)");
     public static final Literal eat = Literal.parseLiteral("eat(Food)");
+    public static final Literal die = Literal.parseLiteral("die");
 
     private AquariumModel model;
     FishSimulationApp view;
@@ -55,7 +54,7 @@ public class SimAquariumEnvironment extends Environment {
     @Override
     public void init(final String[] args) {
         switch (Amount.valueOf(args[0])) {
-            //TODO se little ne dovrebbero scendere 3 invece ne scendono 5.
+            //TODO: se little ne dovrebbero scendere 3 invece ne scendono 5.
             case LITTLE:
                 this.foodQuantity = 3;
                 break;
@@ -78,7 +77,6 @@ public class SimAquariumEnvironment extends Environment {
                 this.numberOfObstacles = 10;
                 break;
         }
-        System.out.println(String.join(",", args));
         Locale.setDefault(Locale.UK);
         this.model = new AquariumModelImpl();
         this.view = new FishSimulationApp(this.model);
@@ -123,7 +121,7 @@ public class SimAquariumEnvironment extends Environment {
 
     private void initializeAgentIfNeeded(String agentName) {
         if (!model.containsAgent(agentName)) {
-            this.model.addFish(agentName, this.getRandomPositionInsideAquarium(), RAND.nextDouble() * 90 + 30); // TODO cambiare valori in costanti.
+            this.model.addFish(agentName, this.getRandomPositionInsideAquarium(), RAND.nextDouble() * 90 + 30); // TODO: cambiare valori in costanti.
             notifyModelChangedToView();
         }
     }
@@ -131,6 +129,9 @@ public class SimAquariumEnvironment extends Environment {
     @Override
     public Collection<Literal> getPercepts(String agName) {
         // Percept cibo in range, percept per il cibo abbastanza vicino, percept per gli ostacoli in range
+        if(this.model.isAgentStopped(agName)){
+            return List.of();
+        }
         initializeAgentIfNeeded(agName);
         return Stream.of(
                 foodInRangePercept(agName),
@@ -230,6 +231,10 @@ public class SimAquariumEnvironment extends Environment {
                 e.printStackTrace();
                 return false;
             }
+        } else if(un.unifies(die, action)){
+            this.model.removeAgent(ag);
+            this.notifyModelChangedToView();
+            return true;
         }
         // initializeAgentIfNeeded(ag);
         // final boolean result;

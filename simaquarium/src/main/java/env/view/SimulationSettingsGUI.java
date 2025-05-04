@@ -48,7 +48,6 @@ public class SimulationSettingsGUI {
             public void actionPerformed(ActionEvent e) {
                 try {
                     SimulationLauncher.launchNew(Integer.parseInt(agentsField.getText()), foodComboBox.getSelectedItem().toString(), obstaclesComboBox.getSelectedItem().toString());
-                    // Close the current window
                     frame.dispose();
                 } catch (NumberFormatException | IOException | JasonException e1 ) {
                     e1.printStackTrace();

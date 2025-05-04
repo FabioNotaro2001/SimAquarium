@@ -46,6 +46,10 @@ public interface AquariumModel {
     /** Retrieves an agent's absolute position in the environment, given its name */
     Fish getAgent(String agent);
 
+    void removeAgent(String name);
+
+    boolean isAgentStopped(String name);
+
     boolean isAgentCloseToFood(String agent, String food);
 
     boolean isFoodWithinObstacle(String food);
@@ -64,6 +68,8 @@ public interface AquariumModel {
             .filter(o -> this.isAgentCloseToObstacle(agent, o))
             .collect(Collectors.toList());
     }
+
+    int getNumberOfFoodEaten();
 
     boolean canAgentEatFood(String agent, String foodId);
     

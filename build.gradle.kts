@@ -34,17 +34,7 @@ subprojects {
         testImplementation("junit", "junit", "4.13.2")
     }
 
-    file(projectDir).listFiles().filter { it.extension == "mas2j" }.forEach { mas2jFile ->
-        tasks.register<JavaExec>("run${mas2jFile.nameWithoutExtension.capitalized()}Mas") {
-            group = "run"
-            classpath = sourceSets.getByName("main").runtimeClasspath
-            mainClass.set("jason.infra.centralised.RunCentralisedMAS")
-            args(mas2jFile.path)
-            standardInput = System.`in`
-            javaLauncher.set(javaToolchains.launcherFor(java.toolchain))
-        }
-    }
-    tasks.register<JavaExec>("runCustomMas") {
+    tasks.register<JavaExec>("runAquariumMas") {
             group = "run"
             classpath = sourceSets.getByName("main").runtimeClasspath
             mainClass.set("env.view.SimulationSettingsGUI")

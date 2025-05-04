@@ -1,5 +1,5 @@
 // Beliefs.
-energy(1000).
+energy(100).
 speed(normal).
 steps(1).
 direction(1, 0).
@@ -22,7 +22,7 @@ direction(1, 0).
     // .print("FOOD: " , Coordinates);
     utils.find_nearest(Coordinates).    // Eventualmente aggiunge la belief target_food(X, Y)
 
-+close_to_food(F) : energy(E) <-
++close_to_food(F) : energy(E) & E > 0 <-
     .wait(not(digesting));
     eat(F);
     .print("YUM: ", F, " ENERGIA: ", (E + 30));
@@ -39,10 +39,14 @@ direction(1, 0).
     -+steps(30).
 
 // Plans.
++!step : energy(E) & E <= 0 <-
+    .print("I'm dead!");
+    .drop_all_intentions;
+    .drop_all_desires;
+    die;
+    utils.stop_agent.
+    
 +!step : energy(E) & steps(S) <-
-    if(E <= 0){
-        .fail;
-    }
     if (digesting) {
         .wait(1000);
         -digesting;
@@ -79,5 +83,3 @@ direction(1, 0).
     -+speed(Speed);
     utils.move_towards(X, Y, Speed);
     move_towards(X, Y, Speed).
-
--!step <- .print("I'm dead!").
