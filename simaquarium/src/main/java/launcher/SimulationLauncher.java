@@ -10,7 +10,6 @@ import jason.JasonException;
 import jason.infra.local.RunLocalMAS;
 
 public class SimulationLauncher extends RunLocalMAS{
-    static final String TEMPLATE_FILE_NAME = "simaquarium.mas2j";   // TODO: si può togliere?
     static final String NEW_FILE_NAME = Path.of(".", "tmp", "sim.mas2j").toString();
     static final String MAS_CONTENT = "MAS robots {\r\n" + //
                 "\tinfrastructure: Centralised \r\n" + //

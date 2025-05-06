@@ -1,15 +1,11 @@
 // Beliefs.
-energy(100).
+// TODO: sostituire energy con status(normal/hungry/dead) e gestire l'energia solo lato model. Ma prima chiedere al prof.
+energy(500).
 speed(normal).
 steps(1).
 direction(1, 0).
 
 // Goals.
-
-// TODO: l'aggiramento degli ostacoli deve tenere in considerazione i bordi, il fatto che il cibo cade e più ostacoli ravvicinati.
-// TODO: scomporre eat per fare come ci ha suggerito il prof.
-
-// TODO: il pesce non cambia direzione quando vicino a ostacoli/bordo se c'è del cibo davanti (tranne che se il cibo è dentro ad un ostacolo)
 
 !init.
 
@@ -19,20 +15,10 @@ direction(1, 0).
 
 // Percepts.
 +food(Coordinates) <- 
-    // .print("FOOD: " , Coordinates);
     utils.find_nearest(Coordinates).    // Eventualmente aggiunge la belief target_food(X, Y)
 
 +close_to_food(F) : energy(E) & E > 0 <-
-    .wait(not(digesting));
-    eat(F);
-    .print("YUM: ", F, " ENERGIA: ", (E + 30));
-    -+energy(E + 30);
-    -close_to_food(F);
-    +digesting.
-
-// +obstacles(Coordinates) <- .print("OBSTACLE!!! ", Coordinates).
-
-// +borders(L) <- .print("BOOOOORDER!!! ", L).
+    !eat(F).
 
 -has_target(_, _) <- 
     utils.set_random_dir;
@@ -40,7 +26,6 @@ direction(1, 0).
 
 // Plans.
 +!step : energy(E) & E <= 0 <-
-    .print("I'm dead!");
     .drop_all_intentions;
     .drop_all_desires;
     die;
@@ -59,7 +44,7 @@ direction(1, 0).
         utils.avoid_obstacles(O);
     }
     if(not(has_target(_, _))){
-        if(E >= 75){
+        if(E >= 200){
             !move(normal);
         } else {
             !move(slow);
@@ -71,7 +56,7 @@ direction(1, 0).
             -+steps(S - 1);
         }
     } else {
-        if(E >= 75){
+        if(E >= 200){
             !move(fast);
         } else {
             !move(faster);
@@ -83,3 +68,12 @@ direction(1, 0).
     -+speed(Speed);
     utils.move_towards(X, Y, Speed);
     move_towards(X, Y, Speed).
+
++!eat(F) : energy(E) <- 
+    .wait(not(digesting));
+    eat(F);
+    -+energy(E + 30);
+    -close_to_food(F);
+    +digesting.
+
+-!eat(F) <- .print("I was not able to eat ", F).

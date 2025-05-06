@@ -34,10 +34,6 @@ public class check_aquarium_borders extends DefaultInternalAction {
 
             Direction dir = b.getFirst();
             double borderDistance = Math.max(0, b.getSecond());
-            
-            if(borderDistance > 30) { // TODO: belief sulla distanza minima? in base alla velocità?
-                continue;
-            }
 
             if((dir == Direction.RIGHT && fishDir.getX() > 0 && (targetPos.isEmpty() || targetPos.get().getX() >= borderDistance)) || 
                 (dir == Direction.LEFT && fishDir.getX() < 0 && (targetPos.isEmpty() || -targetPos.get().getX() >= borderDistance))) {

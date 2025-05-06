@@ -3,6 +3,7 @@ package env.view;
 import javax.swing.*;
 
 import env.model.AquariumModel;
+import env.model.DomainEvent;
 import env.model.Fish;
 import env.model.Food;
 import env.model.Obstacle;
@@ -11,10 +12,14 @@ import launcher.SimulationLauncher;
 import utils.Utils;
 
 import java.awt.*;
+import java.text.SimpleDateFormat;
+import java.util.Optional;
 import java.util.Set;
 
 public class FishSimulationApp extends JFrame {
-    // TODO: pensare a altre statistiche interessanti (forse mettere per ogni pesce i suoi attributi) e a quali eventi mettere nella GUI (forse pesce ha mangiato, pesce è morto).
+    // TODO: pensare a altre statistiche interessanti (forse mettere per ogni pesce i suoi attributi, ossia numero cibo mangiato e stato attuale). Forse per evitare di flickerare conviene fare che la barra si aggiorna ogni tot secondi?
+    // TODO: eventualmente aggiungere bottone esporta che salva tutta la listona di eventi in un file .txt.
+    // TODO: agggiungere bottone pausa che mette in pausa gli agenti e la caduta del cibo, fermando i thread di aggiornamento.
     private DrawPanel drawPanel;
     private JTextArea statsArea;
     private JTextArea eventsArea;
@@ -26,6 +31,7 @@ public class FishSimulationApp extends JFrame {
     private int nFishAlive;
     private int nMaxFish;
     private int lastKnownNumberOfFoodEaten;
+    private static final SimpleDateFormat TIME_FORMATTER = new SimpleDateFormat("HH:mm:ss");
 
     private static final int FPS = 30;
 
@@ -99,14 +105,11 @@ public class FishSimulationApp extends JFrame {
         });
 
         feeder.addActionListener(e -> {
-            for (int i = 0; i < 5; i++) {
+            for (int i = 0; i < this.model.getFoodQuantity(); i++) {
                 model.addFood(new Position((Utils.RAND.nextDouble() * 0.8 + 0.1) * drawPanel.getWidth(), 0));
             }
 
-            logEvent("Food dropped");
-            updateStats();
-            drawPanel.repaint();
-            drawPanel.revalidate();
+            this.notifyModelChanged(Optional.of(DomainEvent.of("Food dropped")));
         });
 
         Thread t = new Thread(new Runnable() {
@@ -142,10 +145,6 @@ public class FishSimulationApp extends JFrame {
         });
     }
 
-    private void logEvent(String event) {
-        eventsArea.append(event + "\n");
-    }
-
     class DrawPanel extends JPanel {
         @Override
         protected void paintComponent(Graphics g) {
@@ -161,7 +160,7 @@ public class FishSimulationApp extends JFrame {
                 g.setColor(Color.ORANGE);
                 // g.fillOval((int)fish.getX(), (int)fish.getY(), (int)fish.getWeight(),
                 // (int)fish.getWeight()/2);
-                g.fillOval((int) (fish.getX() - 5), (int) (fish.getY() - 5), 10, 10);
+                g.fillOval((int) (fish.getX() - fish.getDrawingSize() / 2), (int) (fish.getY() - fish.getDrawingSize() / 4), (int)fish.getDrawingSize(), (int)(fish.getDrawingSize()/2));
 
                 g.setColor(Color.BLUE);
                 g.drawLine((int) fish.getX(), (int) fish.getY(), (int) (fish.getX() + fish.getDirX() * 100),
@@ -175,7 +174,7 @@ public class FishSimulationApp extends JFrame {
         }
     }
 
-    public void notifyModelChanged() {
+    public void notifyModelChanged(Optional<DomainEvent> event) {
         this.fishList = this.model.getAllAgents();
         this.foodList = this.model.getAllFood();
         this.rockList = this.model.getAllObstacles();
@@ -194,6 +193,9 @@ public class FishSimulationApp extends JFrame {
 
         if(needToUpdate){
             updateStats();
+        }
+        if(event.isPresent()){
+            eventsArea.append(String.format("[%s]: %s\n", TIME_FORMATTER.format(event.get().getTime()), event.get().getDescription()));
         }
     }
 

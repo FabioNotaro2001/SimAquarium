@@ -114,4 +114,8 @@ public interface AquariumModel {
     void addFood(Position position);
 
     void addObstacle(Position position, double radius);
+
+    int getFoodQuantity();
+
+    void setFoodQuantity(int amount);
 }

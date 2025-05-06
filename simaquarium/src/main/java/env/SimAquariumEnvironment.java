@@ -13,13 +13,16 @@ import static utils.Utils.*;
 import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.Random;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+
 import env.model.Amount;
 import env.model.AquariumModel;
 import env.model.AquariumModelImpl;
+import env.model.DomainEvent;
 import env.model.Fish;
 import env.model.Position;
 import env.model.Speed;
@@ -54,7 +57,6 @@ public class SimAquariumEnvironment extends Environment {
     @Override
     public void init(final String[] args) {
         switch (Amount.valueOf(args[0])) {
-            //TODO: se little ne dovrebbero scendere 3 invece ne scendono 5.
             case LITTLE:
                 this.foodQuantity = 3;
                 break;
@@ -65,7 +67,7 @@ public class SimAquariumEnvironment extends Environment {
                 this.foodQuantity = 5;
                 break;
         }
-
+        
         switch (Amount.valueOf(args[1])) {
             case LITTLE:
                 this.numberOfObstacles = 5;
@@ -79,6 +81,7 @@ public class SimAquariumEnvironment extends Environment {
         }
         Locale.setDefault(Locale.UK);
         this.model = new AquariumModelImpl();
+        this.model.setFoodQuantity(foodQuantity);
         this.view = new FishSimulationApp(this.model);
         this.view.setVisible(true);
         this.model.setAquariumDimensions(this.view.getPanelWidth(), this.view.getPanelHeight());
@@ -101,9 +104,9 @@ public class SimAquariumEnvironment extends Environment {
                         for(int i = 0; i < foodQuantity; i++){
                             model.addFood(new Position((RAND.nextDouble() * 0.8 + 0.1) * model.getWidth(), 0));
                         }
+                        notifyModelChangedToView(Optional.of(DomainEvent.of("Food dropped")));
                     } 
                     model.sinkStep();
-                    notifyModelChangedToView();
                     try {
                         Thread.sleep(200);
                     } catch (InterruptedException e) {
@@ -112,17 +115,17 @@ public class SimAquariumEnvironment extends Environment {
                 }
             }
         });
-        this.foodSimulationThread.start();  // TODO: questo andrebbe nel bottone start.
+        this.foodSimulationThread.start();  // TODO: quando si fa il bottone pausa/riprendi dovrà essere richiamato.
     }
 
-    private void notifyModelChangedToView() {
-        view.notifyModelChanged();
+    private void notifyModelChangedToView(Optional<DomainEvent> event) {
+        view.notifyModelChanged(event);
     }
 
     private void initializeAgentIfNeeded(String agentName) {
         if (!model.containsAgent(agentName)) {
-            this.model.addFish(agentName, this.getRandomPositionInsideAquarium(), RAND.nextDouble() * 90 + 30); // TODO: cambiare valori in costanti.
-            notifyModelChangedToView();
+            this.model.addFish(agentName, this.getRandomPositionInsideAquarium(), RAND.nextDouble() * 90 + 30);
+            notifyModelChangedToView(Optional.empty());
         }
     }
 
@@ -213,19 +216,18 @@ public class SimAquariumEnvironment extends Environment {
                 y = termToDouble(un.get("Y"));
                 s = termToSpeed(un.get("Speed"));
                 this.model.moveTowards(ag, x, y, s);
-                notifyModelChangedToView();
+                notifyModelChangedToView(Optional.empty());
                 return true;
 
             } catch (NoValueException e) {
                 e.printStackTrace();
                 return false;
             }
-
         } else if(un.unifies(eat, action)){
             String foodId;
             try {
                 foodId = termToString(un.get("Food"));
-                notifyModelChangedToView();
+                notifyModelChangedToView(Optional.of(DomainEvent.of(String.format("%s has eaten", ag))));
                 return this.model.eat(ag, foodId);
             } catch (NoValueException e) {
                 e.printStackTrace();
@@ -233,7 +235,7 @@ public class SimAquariumEnvironment extends Environment {
             }
         } else if(un.unifies(die, action)){
             this.model.removeAgent(ag);
-            this.notifyModelChangedToView();
+            notifyModelChangedToView(Optional.of(DomainEvent.of(String.format("%s is dead", ag))));
             return true;
         }
         // initializeAgentIfNeeded(ag);
@@ -261,7 +263,7 @@ public class SimAquariumEnvironment extends Environment {
         // } catch (InterruptedException ignored) { }
         // notifyModelChangedToView();
         // return result;
-        notifyModelChangedToView();
+        notifyModelChangedToView(Optional.empty());
         return false; // Placeholder, replace with actual action logic
     }
 }

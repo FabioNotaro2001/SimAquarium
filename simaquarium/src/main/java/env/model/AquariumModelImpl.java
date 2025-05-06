@@ -13,6 +13,7 @@ public class AquariumModelImpl implements AquariumModel {
     private int fps;
     private long foodId;
     private int numberOfFoodEaten;
+    private int foodQuantity;
 
     public AquariumModelImpl() {
         this.fps = 20;
@@ -172,7 +173,7 @@ public class AquariumModelImpl implements AquariumModel {
             Position obstaclePos = new Position(obstacle.getX(), obstacle.getY());
             Fish fish = this.agents.get(agent);
             Vector2D dir = Vector2D.fromPositions(fish.getPosition(), obstaclePos);
-            return dir.getLength() <= fish.getRange() + obstacle.getRadius();
+            return dir.getLength() <= fish.getObstacleRange() + obstacle.getRadius();
         }
     }
 
@@ -245,13 +246,13 @@ public class AquariumModelImpl implements AquariumModel {
             Position fishPosition = fish.getPosition();
             switch (dir) {
                 case LEFT:
-                    return fishPosition.getX() <= fish.getRange();
+                    return fishPosition.getX() <= fish.getObstacleRange();
                 case RIGHT:
-                    return fishPosition.getX() >= this.width - fish.getRange();
+                    return fishPosition.getX() >= this.width - fish.getObstacleRange();
                 case TOP:
-                    return fishPosition.getY() <= fish.getRange();
+                    return fishPosition.getY() <= fish.getObstacleRange();
                 default:
-                    return fishPosition.getY() >= this.height - fish.getRange();   
+                    return fishPosition.getY() >= this.height - fish.getObstacleRange();   
             }
         }
     }
@@ -259,5 +260,15 @@ public class AquariumModelImpl implements AquariumModel {
     @Override
     public int getNumberOfFoodEaten() {
         return this.numberOfFoodEaten;
+    }
+
+    @Override
+    public int getFoodQuantity() {
+        return this.foodQuantity;
+    }
+
+    @Override
+    public void setFoodQuantity(int amount) {
+        this.foodQuantity = amount;
     }
 }

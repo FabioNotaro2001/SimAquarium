@@ -46,9 +46,6 @@ public class avoid_obstacles extends DefaultInternalAction {
         if (Math.abs(getAngleBetweenDirectionAndObstacle(fishDir, obstaclePos)) >= Math.PI / 2) { // Obstacle behind fish
             return false;
         }
-        if (dirToObstacle.getLength() > obstacleRadius + 30) {   // TODO: belief sulla distanza minima? in base alla velocità?
-            return false;
-        }
 
         /*
          * Projection of the obstacle position onto the fish direction vector.
