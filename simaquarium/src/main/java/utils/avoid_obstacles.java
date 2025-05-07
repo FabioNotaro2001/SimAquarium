@@ -29,8 +29,7 @@ public class avoid_obstacles extends DefaultInternalAction {
      */
     private double getAngleBetweenDirectionAndObstacle(Vector2D fishDir, Position obstaclePos) {
         Vector2D dirToObstacle = Vector2D.fromPositions(Position.zero(), obstaclePos);
-        double fishDirAngle = fishDir.angle();
-        return dirToObstacle.rotateBy(-fishDirAngle).angle();
+        return Vector2D.angleBetween(fishDir, dirToObstacle);
     }
 
     /**
@@ -41,7 +40,7 @@ public class avoid_obstacles extends DefaultInternalAction {
      * @param obstacleRadius
      * @return
      */
-    private boolean isObstacleOnPath(Vector2D fishDir, Position obstaclePos, double obstacleRadius) {
+    private boolean isObstacleOnPath(Vector2D fishDir, double fishHalfSize, Position obstaclePos, double obstacleRadius) {
         Vector2D dirToObstacle = Vector2D.fromPositions(Position.zero(), obstaclePos);
         if (Math.abs(getAngleBetweenDirectionAndObstacle(fishDir, obstaclePos)) >= Math.PI / 2) { // Obstacle behind fish
             return false;
@@ -56,7 +55,7 @@ public class avoid_obstacles extends DefaultInternalAction {
 
         // System.out.println("OSTACOLO " +
         // (Math.sqrt(projToObstacle.times(projToObstacle)) - obstacleRadius));
-        return Math.sqrt(projToObstacle.times(projToObstacle)) <= obstacleRadius;
+        return Math.sqrt(projToObstacle.times(projToObstacle)) <= obstacleRadius + fishHalfSize;
     }
 
     private boolean isFoodInFrontOfObstacle(Vector2D fishDir, Position foodPos, Position obstaclePos, double obstacleRadius) {
@@ -75,7 +74,6 @@ public class avoid_obstacles extends DefaultInternalAction {
      * @return
      */
     private boolean isObstacleToTheLeft(Vector2D fishDir, Position obstaclePos) {
-
         return getAngleBetweenDirectionAndObstacle(fishDir, obstaclePos) >= 0; // A positive angle means the vector is "to the left" of the fish's direction.
     }
 
@@ -90,6 +88,9 @@ public class avoid_obstacles extends DefaultInternalAction {
         Literal hasTargLiteral = currentAgent.findBel(Literal.parseLiteral("has_target(_, _)"), un);
         Optional<Position> targetPos = Optional.ofNullable(hasTargLiteral).map(Utils::literalToPosition);
 
+        Literal sizeBelief = currentAgent.findBel(Literal.parseLiteral("half_size(_)"), un);
+        double halfSize = termToDouble(sizeBelief.getTerm(0));
+
         int maxLoops = 50;
         Map<Position, Integer> obstacleEncounters = new HashMap<>();
         boolean rotated;
@@ -97,7 +98,7 @@ public class avoid_obstacles extends DefaultInternalAction {
             rotated = false;
             var dir = fishDir;
             Optional<Pair<Position, Double>> closestObstacleOnPath = coordinatesList.stream()
-                .filter(p -> isObstacleOnPath(dir, p.getFirst(), p.getSecond()))
+                .filter(p -> isObstacleOnPath(dir, halfSize, p.getFirst(), p.getSecond()))
                 .min((p1, p2) -> Double.compare(Position.zero().distanceFrom(p1.getFirst()), Position.zero().distanceFrom(p2.getFirst())));
 
             if(closestObstacleOnPath.isPresent() && (targetPos.isEmpty() || !isFoodInFrontOfObstacle(fishDir, targetPos.get(), closestObstacleOnPath.get().getFirst(), closestObstacleOnPath.get().getSecond()))){

@@ -20,6 +20,7 @@ public class FishSimulationApp extends JFrame {
     // TODO: pensare a altre statistiche interessanti (forse mettere per ogni pesce i suoi attributi, ossia numero cibo mangiato e stato attuale). Forse per evitare di flickerare conviene fare che la barra si aggiorna ogni tot secondi?
     // TODO: eventualmente aggiungere bottone esporta che salva tutta la listona di eventi in un file .txt.
     // TODO: agggiungere bottone pausa che mette in pausa gli agenti e la caduta del cibo, fermando i thread di aggiornamento.
+    // TODO:aggiungere bottone toggle che permette di passare tra visualizzazione senza range, con range cibo o con ra ge ostacoli.
     private DrawPanel drawPanel;
     private JTextArea statsArea;
     private JTextArea eventsArea;
@@ -160,11 +161,14 @@ public class FishSimulationApp extends JFrame {
                 g.setColor(Color.ORANGE);
                 // g.fillOval((int)fish.getX(), (int)fish.getY(), (int)fish.getWeight(),
                 // (int)fish.getWeight()/2);
-                g.fillOval((int) (fish.getX() - fish.getDrawingSize() / 2), (int) (fish.getY() - fish.getDrawingSize() / 4), (int)fish.getDrawingSize(), (int)(fish.getDrawingSize()/2));
+                g.fillOval((int) (fish.getX() - fish.getSize() / 2), (int) (fish.getY() - fish.getSize() / 4), (int)fish.getSize(), (int)(fish.getSize()/2));
 
+                g.setColor(Color.GREEN);
+                g.drawOval((int) (fish.getX() - fish.getRange()), (int) (fish.getY() - fish.getRange()), (int)(fish.getRange() * 2), (int)(fish.getRange() * 2));
                 g.setColor(Color.BLUE);
-                g.drawLine((int) fish.getX(), (int) fish.getY(), (int) (fish.getX() + fish.getDirX() * 100),
-                        (int) (fish.getY() + fish.getDirY() * 100));
+                g.drawLine((int) fish.getX(), (int) fish.getY(), (int) (fish.getX() + fish.getDirX() * fish.getRange() * 0.8),
+                        (int) (fish.getY() + fish.getDirY() * fish.getRange() * 0.8));
+
             }
 
             for (Food food : foodList) {

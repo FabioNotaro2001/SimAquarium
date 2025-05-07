@@ -1,19 +1,25 @@
 package env.model;
 
 public class Fish {
+    private String id;
     private double weight; // in grams, between 10 and 100
     private double energy;
     private Position position;
     private Vector2D direction = Vector2D.of(1, 0);
 
-    public Fish(double weight, double energy, Position position) {
+    public Fish(String id, double weight, double energy, Position position) {
+        this.id = id;
         this.weight = weight;
         this.energy = energy;
         this.position = position;
     }
 
-    public Fish(double weight, Position position) {
-        this(weight, 100, position);
+    public Fish(String id, double weight, Position position) {
+        this(id, weight, 100, position);
+    }
+
+    public String getId(){
+        return this.id;
     }
 
     public double getX() {
@@ -84,7 +90,7 @@ public class Fish {
         return Math.min(10, this.getRange() / 10);
     }
 
-    public double getDrawingSize(){
+    public double getSize(){
         return Math.max(10, this.getWeight() / 4);
     }
 }

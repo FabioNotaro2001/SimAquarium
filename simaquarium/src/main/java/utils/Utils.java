@@ -141,4 +141,9 @@ public class Utils {
         }
         return Direction.valueOf(((Atom) term).getFunctor().toUpperCase());
     }
+
+    public static double map(double min1, double max1, double min2, double max2, double val){
+        double ratio = (max2 - min2) / (max1 - min1); 
+        return (val - min1) * ratio + min2;
+    }
 }

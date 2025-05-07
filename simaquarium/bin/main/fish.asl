@@ -1,5 +1,8 @@
 // Beliefs.
+// TODO: mettere nella GUI, nelle statistiche, anche un fairness index da noi scelto (ad esempio tra 0 e 1 calcolato ad esempio come media dei cibi mangiati da ogni pesce / (cibi totali mangiati / numero pesci))
+// TODO: cambiare direzione come suggerito da Bertu
 // TODO: sostituire energy con status(normal/hungry/dead) e gestire l'energia solo lato model. Ma prima chiedere al prof.
+// TODO: pensare a come gestire la fine della simulazione(stop del food drop? Message box?)
 energy(500).
 speed(normal).
 steps(1).
@@ -11,6 +14,8 @@ direction(1, 0).
 
 +!init <- 
     utils.agent_init;
+    .belief(weight(W));
+    init(W);
     !step.
 
 // Percepts.
@@ -21,7 +26,6 @@ direction(1, 0).
     !eat(F).
 
 -has_target(_, _) <- 
-    utils.set_random_dir;
     -+steps(30).
 
 // Plans.
@@ -36,8 +40,8 @@ direction(1, 0).
         .wait(1000);
         -digesting;
     }
-    if(has_target(X, Y)){
-        -+direction(X, Y);
+    if(has_target(_, _)){
+        utils.rotate_dir;
     }
     utils.check_aquarium_borders;
     if(obstacles(O)){

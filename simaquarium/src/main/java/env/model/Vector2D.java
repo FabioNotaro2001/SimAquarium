@@ -183,4 +183,9 @@ public final class Vector2D {
      * A reusable zero vector constant.
      */
     public static Vector2D zero = new Vector2D(0, 0);
+
+    public static double angleBetween(Vector2D v1, Vector2D v2){
+        double angle = v1.angle();
+        return v2.rotateBy(-angle).angle();
+    }
 }

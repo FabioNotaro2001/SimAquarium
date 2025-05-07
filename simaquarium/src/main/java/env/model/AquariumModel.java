@@ -62,10 +62,18 @@ public interface AquariumModel {
     }
 
     boolean isAgentCloseToObstacle(String agent, Obstacle obstacle);
-        
+
     default Collection<Obstacle> getNearbyObstacles(String agent) {
         return this.getAllObstacles().stream()
-            .filter(o -> this.isAgentCloseToObstacle(agent, o))
+        .filter(o -> this.isAgentCloseToObstacle(agent, o))
+        .collect(Collectors.toList());
+    }
+    
+    boolean isAgentCloseToOtherAgent(String agent1, String agent2);
+
+    default Collection<Fish> getNearbyFish(String agent) {
+        return this.getAllAgents().stream()
+            .filter(f -> agent != f.getId() && this.isAgentCloseToOtherAgent(agent, f.getId()))
             .collect(Collectors.toList());
     }
 

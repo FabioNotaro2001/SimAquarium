@@ -18,7 +18,6 @@ import java.util.Random;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-
 import env.model.Amount;
 import env.model.AquariumModel;
 import env.model.AquariumModelImpl;
@@ -28,7 +27,6 @@ import env.model.Position;
 import env.model.Speed;
 import env.model.Vector2D;
 import env.view.FishSimulationApp;
-
 
 /**
  * Any Jason environment "entry point" should extend
@@ -46,6 +44,7 @@ public class SimAquariumEnvironment extends Environment {
     public static final Literal moveTowards = Literal.parseLiteral("move_towards(X, Y, Speed)");
     public static final Literal eat = Literal.parseLiteral("eat(Food)");
     public static final Literal die = Literal.parseLiteral("die");
+    public static final Literal init = Literal.parseLiteral("init(Weight)");
 
     private AquariumModel model;
     FishSimulationApp view;
@@ -122,20 +121,12 @@ public class SimAquariumEnvironment extends Environment {
         view.notifyModelChanged(event);
     }
 
-    private void initializeAgentIfNeeded(String agentName) {
-        if (!model.containsAgent(agentName)) {
-            this.model.addFish(agentName, this.getRandomPositionInsideAquarium(), RAND.nextDouble() * 90 + 30);
-            notifyModelChangedToView(Optional.empty());
-        }
-    }
-
     @Override
     public Collection<Literal> getPercepts(String agName) {
         // Percept cibo in range, percept per il cibo abbastanza vicino, percept per gli ostacoli in range
-        if(this.model.isAgentStopped(agName)){
+        if(!this.model.containsAgent(agName)){
             return List.of();
         }
-        initializeAgentIfNeeded(agName);
         return Stream.of(
                 foodInRangePercept(agName),
                 closestFoodPercept(agName),
@@ -189,13 +180,19 @@ public class SimAquariumEnvironment extends Environment {
     private Collection<Literal> obstaclePercept(String agent) {
         Fish fish = this.model.getAgent(agent);
 
-        var coordinates = this.model.getNearbyObstacles(agent)
+        var obstacleStream = this.model.getNearbyObstacles(agent)
             .stream()
             .sorted((o1, o2) -> Double.compare(Vector2D.of(o1.getX() - fish.getX(), o1.getY() - fish.getY()).getLength(), Vector2D.of(o2.getX() - fish.getX(), o2.getY() - fish.getY()).getLength()))
-            .map(o -> Literal.parseLiteral(String.format("obstacle(%f,%f,%f)", o.getX() - fish.getX(), o.getY() - fish.getY(), o.getRadius())))
-            .collect(ListTermImpl::new, ListTerm::add, ListTerm::addAll);
+            .map(o -> Literal.parseLiteral(String.format("obstacle(%f,%f,%f)", o.getX() - fish.getX(), o.getY() - fish.getY(), o.getRadius())));
 
-        return Stream.of(Literal.parseLiteral(String.format("obstacles(%s)", coordinates))).collect(Collectors.toList());
+        var fishStream = this.model.getNearbyFish(agent)
+            .stream()
+            .sorted((f1, f2) -> Double.compare(Vector2D.of(f1.getX() - fish.getX(), f1.getY() - fish.getY()).getLength(), Vector2D.of(f2.getX() - fish.getX(), f2.getY() - fish.getY()).getLength()))
+            .map(f -> Literal.parseLiteral(String.format("obstacle(%f,%f,%f)", f.getX() - fish.getX(), f.getY() - fish.getY(), f.getSize() / 2)));
+
+        var coords = Stream.concat(obstacleStream, fishStream).collect(ListTermImpl::new, ListTerm::add, ListTerm::addAll);
+        
+        return Stream.of(Literal.parseLiteral(String.format("obstacles(%s)", coords))).collect(Collectors.toList());
     }
 
     /**
@@ -204,10 +201,22 @@ public class SimAquariumEnvironment extends Environment {
      */
     @Override
     public boolean executeAction(final String ag, final Structure action) {
-        initializeAgentIfNeeded(ag);
-
         Unifier un = new Unifier();
-        if(un.unifies(moveTowards, action)){
+        if(un.unifies(init, action)){
+            if (model.containsAgent(ag)) {
+                return false;
+            }
+            try {
+                double weight = termToDouble(un.get("Weight"));
+                this.model.addFish(ag, this.getRandomPositionInsideAquarium(), weight);
+                notifyModelChangedToView(Optional.empty());
+                return true;
+            } catch (NoValueException e) {
+                e.printStackTrace();
+                return false;
+            }
+        }
+        else if(un.unifies(moveTowards, action)){
             double x;
             double y;
             Speed s;

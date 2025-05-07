@@ -146,9 +146,7 @@ public class AquariumModelImpl implements AquariumModel {
                 throw new IllegalArgumentException("No such food: " + food);
             }
 
-            this.food.get(food).sink();
-            
-            
+            this.food.get(food).sink(); 
         }
     }
 
@@ -173,7 +171,7 @@ public class AquariumModelImpl implements AquariumModel {
             Position obstaclePos = new Position(obstacle.getX(), obstacle.getY());
             Fish fish = this.agents.get(agent);
             Vector2D dir = Vector2D.fromPositions(fish.getPosition(), obstaclePos);
-            return dir.getLength() <= fish.getObstacleRange() + obstacle.getRadius();
+            return dir.getLength() <= fish.getSize() / 2 + fish.getObstacleRange() + obstacle.getRadius();
         }
     }
 
@@ -211,14 +209,14 @@ public class AquariumModelImpl implements AquariumModel {
             Food food = this.food.get(foodId);
     
             Vector2D dir = Vector2D.fromPositions(fish.getPosition(), food.getPosition());
-            return dir.getLength() <= fish.getEatingRange();
+            return dir.getLength() <= fish.getEatingRange() + fish.getSize() / 2;
         }
     }
 
     @Override
     public void addFish(String agentName, Position position, double weight) {
         synchronized(this.agents){
-            this.agents.put(agentName, new Fish(weight, position));
+            this.agents.put(agentName, new Fish(agentName, weight, position));
         }
     }
 
@@ -246,13 +244,13 @@ public class AquariumModelImpl implements AquariumModel {
             Position fishPosition = fish.getPosition();
             switch (dir) {
                 case LEFT:
-                    return fishPosition.getX() <= fish.getObstacleRange();
+                    return fishPosition.getX() <= fish.getObstacleRange() + fish.getSize() / 2;
                 case RIGHT:
-                    return fishPosition.getX() >= this.width - fish.getObstacleRange();
+                    return fishPosition.getX() >= this.width - fish.getObstacleRange() - fish.getSize() / 2;
                 case TOP:
-                    return fishPosition.getY() <= fish.getObstacleRange();
+                    return fishPosition.getY() <= fish.getObstacleRange() + fish.getSize() / 2;
                 default:
-                    return fishPosition.getY() >= this.height - fish.getObstacleRange();   
+                    return fishPosition.getY() >= this.height - fish.getObstacleRange() - fish.getSize() / 2;   
             }
         }
     }
@@ -270,5 +268,23 @@ public class AquariumModelImpl implements AquariumModel {
     @Override
     public void setFoodQuantity(int amount) {
         this.foodQuantity = amount;
+    }
+
+    @Override
+    public boolean isAgentCloseToOtherAgent(String agent1, String agent2) {
+        synchronized(this.agents){
+            Fish fish1 = this.agents.get(agent1);
+            Fish fish2 = this.agents.get(agent2);
+    
+            ensureAgentExists(agent1);
+            ensureAgentExists(agent2);
+
+            if(agent1 == agent2){
+                return true;
+            }
+            
+            Vector2D dir = Vector2D.fromPositions(fish1.getPosition(), fish2.getPosition());
+            return dir.getLength() <= fish1.getSize() / 2 + fish1.getObstacleRange() + fish2.getSize() / 2;
+        }
     }
 }
