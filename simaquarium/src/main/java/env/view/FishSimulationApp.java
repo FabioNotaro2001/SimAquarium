@@ -151,29 +151,41 @@ public class FishSimulationApp extends JFrame {
         protected void paintComponent(Graphics g) {
             super.paintComponent(g);
 
+            Stroke basicStroke = new BasicStroke(2);
+            Stroke dashedStroke = new BasicStroke(2, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 0, new float[]{9}, 0);
+
+            Graphics2D g2 = (Graphics2D) g.create();
+            g2.setStroke(basicStroke);
+
             for (Obstacle rock : rockList) {
-                g.setColor(Color.DARK_GRAY);
-                g.fillOval((int) (rock.getX() - rock.getRadius()), (int) (rock.getY() - rock.getRadius()),
+                g2.setColor(Color.DARK_GRAY);
+                g2.fillOval((int) (rock.getX() - rock.getRadius()), (int) (rock.getY() - rock.getRadius()),
                         (int) rock.getRadius() * 2, (int) rock.getRadius() * 2);
             }
 
             for (Fish fish : fishList) {
-                g.setColor(Color.ORANGE);
+                g2.setColor(Color.ORANGE);
                 // g.fillOval((int)fish.getX(), (int)fish.getY(), (int)fish.getWeight(),
                 // (int)fish.getWeight()/2);
-                g.fillOval((int) (fish.getX() - fish.getSize() / 2), (int) (fish.getY() - fish.getSize() / 4), (int)fish.getSize(), (int)(fish.getSize()/2));
+                g2.fillOval((int) (fish.getX() - fish.getSize() / 2), (int) (fish.getY() - fish.getSize() / 4), (int)fish.getSize(), (int)(fish.getSize()/2));
 
-                g.setColor(Color.GREEN);
-                g.drawOval((int) (fish.getX() - fish.getRange()), (int) (fish.getY() - fish.getRange()), (int)(fish.getRange() * 2), (int)(fish.getRange() * 2));
-                g.setColor(Color.BLUE);
-                g.drawLine((int) fish.getX(), (int) fish.getY(), (int) (fish.getX() + fish.getDirX() * fish.getRange() * 0.8),
+                g2.setStroke(dashedStroke);
+
+                double fishRange = fish.getRange() + fish.getSize() / 2;
+                g2.setColor(new Color(0x006600));
+                g2.drawOval((int) (fish.getX() - fishRange), (int) (fish.getY() - fishRange), (int)(fishRange * 2), (int)(fishRange * 2));
+                
+                g2.setStroke(basicStroke);
+
+                g2.setColor(Color.BLUE);
+                g2.drawLine((int) fish.getX(), (int) fish.getY(), (int) (fish.getX() + fish.getDirX() * fish.getRange() * 0.8),
                         (int) (fish.getY() + fish.getDirY() * fish.getRange() * 0.8));
 
             }
 
             for (Food food : foodList) {
-                g.setColor(Color.RED);
-                g.fillOval((int) food.getX() - 5, (int) food.getY() - 5, 10, 10);
+                g2.setColor(Color.RED);
+                g2.fillOval((int) food.getX() - 5, (int) food.getY() - 5, 10, 10);
             }
         }
     }

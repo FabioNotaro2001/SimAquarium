@@ -34,7 +34,7 @@ public class rotate_dir extends DefaultInternalAction {
 
         double angleBetween = Vector2D.angleBetween(fishDir, targetDir);
         fishDir = Math.abs(angleBetween) <= angle ? targetDir : fishDir.rotateBy(angle * Math.signum(angleBetween));
-        System.out.println("ATTENZIONE!!! " + Math.toDegrees(Math.abs(Vector2D.angleBetween(fishDir, targetDir))));
+
         currentAgent.delBel(directionLiteral);
         currentAgent.addBel(Literal.parseLiteral(String.format("direction(%f, %f)", fishDir.getX(), fishDir.getY())));
 

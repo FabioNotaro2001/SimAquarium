@@ -32,6 +32,11 @@ public class avoid_obstacles extends DefaultInternalAction {
         return Vector2D.angleBetween(fishDir, dirToObstacle);
     }
 
+    private boolean isInsideObstacle(Position obstaclePos, double obstacleRadius) {
+        Vector2D dirToObstacle = Vector2D.fromPositions(Position.zero(), obstaclePos);
+        return dirToObstacle.getLength() < obstacleRadius;
+    }
+
     /**
      * Checks if the obstacle is in front of fish based on its direction.
      * 
@@ -42,6 +47,9 @@ public class avoid_obstacles extends DefaultInternalAction {
      */
     private boolean isObstacleOnPath(Vector2D fishDir, double fishHalfSize, Position obstaclePos, double obstacleRadius) {
         Vector2D dirToObstacle = Vector2D.fromPositions(Position.zero(), obstaclePos);
+        if (isInsideObstacle(obstaclePos, obstacleRadius)) {
+            return true;
+        }
         if (Math.abs(getAngleBetweenDirectionAndObstacle(fishDir, obstaclePos)) >= Math.PI / 2) { // Obstacle behind fish
             return false;
         }
@@ -97,30 +105,44 @@ public class avoid_obstacles extends DefaultInternalAction {
         do {
             rotated = false;
             var dir = fishDir;
+            
             Optional<Pair<Position, Double>> closestObstacleOnPath = coordinatesList.stream()
                 .filter(p -> isObstacleOnPath(dir, halfSize, p.getFirst(), p.getSecond()))
                 .min((p1, p2) -> Double.compare(Position.zero().distanceFrom(p1.getFirst()), Position.zero().distanceFrom(p2.getFirst())));
 
-            if(closestObstacleOnPath.isPresent() && (targetPos.isEmpty() || !isFoodInFrontOfObstacle(fishDir, targetPos.get(), closestObstacleOnPath.get().getFirst(), closestObstacleOnPath.get().getSecond()))){
-                Position pos = closestObstacleOnPath.get().getFirst();
-                
-                Integer occurrences = obstacleEncounters.get(pos);
+            if (closestObstacleOnPath.isEmpty()) {
+                maxLoops--;
+                continue;
+            }
+            
+            Position obstaclePos = closestObstacleOnPath.get().getFirst();
+            double obstacleRadius = closestObstacleOnPath.get().getSecond();
+
+            if (isInsideObstacle(obstaclePos, obstacleRadius)) {
+                fishDir = Vector2D.fromPositions(Position.zero(), obstaclePos).rotateBy(Math.PI);
+                break;
+            }
+
+            if(targetPos.isEmpty() || !isFoodInFrontOfObstacle(fishDir, targetPos.get(), obstaclePos, obstacleRadius)){                
+                Integer occurrences = obstacleEncounters.get(obstaclePos);
                 if (occurrences == null) {
                     occurrences = 1;
-                    obstacleEncounters.put(pos, 1);
+                    obstacleEncounters.put(obstaclePos, 1);
                 } else {
-                    obstacleEncounters.put(pos, occurrences + 1);
+                    obstacleEncounters.put(obstaclePos, occurrences + 1);
                 }
-                double angle = Math.PI / 10 * occurrences;
+                double angle = Math.toRadians(3) * occurrences;
 
-                fishDir = isObstacleToTheLeft(fishDir, pos) ? fishDir.rotateBy(-angle) : fishDir.rotateBy(angle);
+                fishDir = isObstacleToTheLeft(fishDir, obstaclePos) ? fishDir.rotateBy(-angle) : fishDir.rotateBy(angle);
                 rotated = true;
                 // System.out.println("ROTATED: " + fishDir.angle());
             }
             maxLoops--;
         } while (rotated && maxLoops > 0);
+
         currentAgent.delBel(directionAsLiteral);
         currentAgent.addBel(Literal.parseLiteral(String.format("direction(%f, %f)", fishDir.getX(), fishDir.getY())));
+        
         return true;
     }
 }
