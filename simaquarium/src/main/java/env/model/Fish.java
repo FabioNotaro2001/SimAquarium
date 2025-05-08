@@ -5,6 +5,7 @@ public class Fish {
     private double weight; // in grams, between 10 and 100
     private double energy;
     private Position position;
+    private long numberOfFoodEaten;
     private Vector2D direction = Vector2D.of(1, 0);
 
     public Fish(String id, double weight, double energy, Position position) {
@@ -12,6 +13,7 @@ public class Fish {
         this.weight = weight;
         this.energy = energy;
         this.position = position;
+        this.numberOfFoodEaten = 0;
     }
 
     public Fish(String id, double weight, Position position) {
@@ -92,5 +94,13 @@ public class Fish {
 
     public double getSize(){
         return Math.max(10, this.getWeight() / 4);
+    }
+
+    public void incrementFoodEaten() {
+        this.numberOfFoodEaten++;
+    }
+
+    public long getNumberOfFoodEaten() {
+        return this.numberOfFoodEaten;
     }
 }

@@ -126,4 +126,6 @@ public interface AquariumModel {
     int getFoodQuantity();
 
     void setFoodQuantity(int amount);
+
+    double getFairnessIndex();
 }

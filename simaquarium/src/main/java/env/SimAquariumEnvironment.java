@@ -36,7 +36,7 @@ import env.view.FishSimulationApp;
 public class SimAquariumEnvironment extends Environment {
     private static final Random RAND = new Random();
     private Thread foodSimulationThread;
-    private boolean stopRequested;
+    private boolean paused;
     private int foodQuantity;
     private int numberOfObstacles;
 
@@ -81,10 +81,10 @@ public class SimAquariumEnvironment extends Environment {
         Locale.setDefault(Locale.UK);
         this.model = new AquariumModelImpl();
         this.model.setFoodQuantity(foodQuantity);
-        this.view = new FishSimulationApp(this.model);
+        this.view = new FishSimulationApp(this.model, this);
         this.view.setVisible(true);
         this.model.setAquariumDimensions(this.view.getPanelWidth(), this.view.getPanelHeight());
-        this.stopRequested = false;
+        this.paused = false;
         for (int i = 0; i < this.numberOfObstacles; i++){
             this.model.addObstacle(this.getRandomPositionInsideAquarium(), (RAND.nextDouble() * 0.1 + 0.02) * this.model.getHeight());
             // this.model.addObstacle(this.getRandomPositionInsideAquarium(), 25);
@@ -94,18 +94,20 @@ public class SimAquariumEnvironment extends Environment {
             public void run() {
                 long untilNextFoodDrop = 5000;
                 long lastCycle = System.currentTimeMillis();
-                while (!stopRequested) {    // TODO: stopRequested dovrebbe essere settato premendo il bottone stop.
+                while (true) { 
                     long time = System.currentTimeMillis();
-                    untilNextFoodDrop -= time-lastCycle;
-                    lastCycle = time;
-                    if (untilNextFoodDrop <= 0) {
-                        untilNextFoodDrop += 10000;
-                        for(int i = 0; i < foodQuantity; i++){
-                            model.addFood(new Position((RAND.nextDouble() * 0.8 + 0.1) * model.getWidth(), 0));
-                        }
-                        notifyModelChangedToView(Optional.of(DomainEvent.of("Food dropped")));
-                    } 
-                    model.sinkStep();
+                    if(!paused) {
+                        untilNextFoodDrop -= time-lastCycle;
+                        lastCycle = time;
+                        if (untilNextFoodDrop <= 0) {
+                            untilNextFoodDrop += 10000;
+                            for(int i = 0; i < foodQuantity; i++){
+                                model.addFood(new Position((RAND.nextDouble() * 0.8 + 0.1) * model.getWidth(), 0));
+                            }
+                            notifyModelChangedToView(Optional.of(DomainEvent.of("Food dropped")));
+                        } 
+                        model.sinkStep();
+                    }
                     try {
                         Thread.sleep(200);
                     } catch (InterruptedException e) {
@@ -114,7 +116,7 @@ public class SimAquariumEnvironment extends Environment {
                 }
             }
         });
-        this.foodSimulationThread.start();  // TODO: quando si fa il bottone pausa/riprendi dovrà essere richiamato.
+        this.foodSimulationThread.start();
     }
 
     private void notifyModelChangedToView(Optional<DomainEvent> event) {
@@ -274,5 +276,9 @@ public class SimAquariumEnvironment extends Environment {
         // return result;
         notifyModelChangedToView(Optional.empty());
         return false; // Placeholder, replace with actual action logic
+    }
+
+    public void setPaused(boolean paused) {
+        this.paused = paused;
     }
 }

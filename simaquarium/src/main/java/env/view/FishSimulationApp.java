@@ -2,12 +2,14 @@ package env.view;
 
 import javax.swing.*;
 
+import env.SimAquariumEnvironment;
 import env.model.AquariumModel;
 import env.model.DomainEvent;
 import env.model.Fish;
 import env.model.Food;
 import env.model.Obstacle;
 import env.model.Position;
+import jason.runtime.MASConsoleGUI;
 import launcher.SimulationLauncher;
 import utils.Utils;
 
@@ -17,10 +19,7 @@ import java.util.Optional;
 import java.util.Set;
 
 public class FishSimulationApp extends JFrame {
-    // TODO: pensare a altre statistiche interessanti (forse mettere per ogni pesce i suoi attributi, ossia numero cibo mangiato e stato attuale). Forse per evitare di flickerare conviene fare che la barra si aggiorna ogni tot secondi?
-    // TODO: eventualmente aggiungere bottone esporta che salva tutta la listona di eventi in un file .txt.
     // TODO: agggiungere bottone pausa che mette in pausa gli agenti e la caduta del cibo, fermando i thread di aggiornamento.
-    // TODO:aggiungere bottone toggle che permette di passare tra visualizzazione senza range, con range cibo o con ra ge ostacoli.
     private DrawPanel drawPanel;
     private JTextArea statsArea;
     private JTextArea eventsArea;
@@ -32,11 +31,14 @@ public class FishSimulationApp extends JFrame {
     private int nFishAlive;
     private int nMaxFish;
     private int lastKnownNumberOfFoodEaten;
+    private boolean showRanges = false;
+    private boolean paused = false;
+    private final SimAquariumEnvironment env;
     private static final SimpleDateFormat TIME_FORMATTER = new SimpleDateFormat("HH:mm:ss");
 
     private static final int FPS = 30;
 
-    public FishSimulationApp(AquariumModel model) {
+    public FishSimulationApp(AquariumModel model, SimAquariumEnvironment env) {
         this.model = model;
         this.fishList = this.model.getAllAgents();
         this.nFishAlive = -1;
@@ -44,6 +46,7 @@ public class FishSimulationApp extends JFrame {
         this.lastKnownNumberOfFoodEaten = 0;
         this.foodList = this.model.getAllFood();
         this.rockList = this.model.getAllObstacles();
+        this.env = env;
         setTitle("Fish Simulation");
         setSize(800, 600);
         setResizable(false);
@@ -55,9 +58,13 @@ public class FishSimulationApp extends JFrame {
         JPanel buttonPanel = new JPanel();
         JButton stopButton = new JButton("STOP");
         JButton feeder = new JButton("DROP FOOD");
+        JButton viewRange = new JButton("SHOW RANGE");
+        JButton pause = new JButton("PAUSE");
 
         buttonPanel.add(stopButton);
         buttonPanel.add(feeder);
+        buttonPanel.add(viewRange);
+        buttonPanel.add(pause);
 
         this.leftPanel = new JPanel(new BorderLayout());
         this.leftPanel.add(drawPanel, BorderLayout.CENTER);
@@ -113,6 +120,28 @@ public class FishSimulationApp extends JFrame {
             this.notifyModelChanged(Optional.of(DomainEvent.of("Food dropped")));
         });
 
+        viewRange.addActionListener(e -> {
+            this.showRanges = !this.showRanges;
+            if (this.showRanges) {
+                viewRange.setText("HIDE RANGE");
+            } else {
+                viewRange.setText("SHOW RANGE");
+            }
+            drawPanel.repaint();
+        });
+
+        pause.addActionListener(e -> {
+            this.paused = !this.paused;
+            if (this.paused) {
+                pause.setText("RESUME");
+            } else {
+                pause.setText("PAUSE");
+            }
+            this.env.setPaused(this.paused);
+            MASConsoleGUI.get().setPause(this.paused);
+            
+        });
+
         Thread t = new Thread(new Runnable() {
             @Override
             public void run() {
@@ -140,9 +169,10 @@ public class FishSimulationApp extends JFrame {
     private void updateStats() {
         SwingUtilities.invokeLater(() -> {
             statsArea.setText("Number of fish: " + this.nFishAlive + "\n"
-                        + "Survival rate: " + Math.floor(1.0 * this.nFishAlive / this.nMaxFish * 100)+ "%\n"
-                        + "Food pieces eaten:" + this.lastKnownNumberOfFoodEaten);
-                statsArea.update(statsArea.getGraphics());
+                        + "Survival rate: " + Math.floor(1.0 * this.nFishAlive / this.nMaxFish * 100) + "%\n"
+                        + "Food pieces eaten: " + this.lastKnownNumberOfFoodEaten + "\n"
+                        + "Fairness index: " + String.format("%.2f", this.model.getFairnessIndex()) + "\n");
+            statsArea.update(statsArea.getGraphics());
         });
     }
 
@@ -171,15 +201,17 @@ public class FishSimulationApp extends JFrame {
 
                 g2.setStroke(dashedStroke);
 
-                double fishRange = fish.getRange() + fish.getSize() / 2;
-                g2.setColor(new Color(0x006600));
-                g2.drawOval((int) (fish.getX() - fishRange), (int) (fish.getY() - fishRange), (int)(fishRange * 2), (int)(fishRange * 2));
-                
-                g2.setStroke(basicStroke);
-
-                g2.setColor(Color.BLUE);
-                g2.drawLine((int) fish.getX(), (int) fish.getY(), (int) (fish.getX() + fish.getDirX() * fish.getRange() * 0.8),
-                        (int) (fish.getY() + fish.getDirY() * fish.getRange() * 0.8));
+                if(showRanges){
+                    double fishRange = fish.getRange() + fish.getSize() / 2;
+                    g2.setColor(new Color(0x006600));
+                    g2.drawOval((int) (fish.getX() - fishRange), (int) (fish.getY() - fishRange), (int)(fishRange * 2), (int)(fishRange * 2));
+                    
+                    g2.setStroke(basicStroke);
+                    
+                    g2.setColor(Color.BLUE);
+                    g2.drawLine((int) fish.getX(), (int) fish.getY(), (int) (fish.getX() + fish.getDirX() * fish.getRange() * 0.8),
+                    (int) (fish.getY() + fish.getDirY() * fish.getRange() * 0.8));
+                }
 
             }
 

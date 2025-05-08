@@ -12,14 +12,14 @@ public class AquariumModelImpl implements AquariumModel {
     private int height;
     private int fps;
     private long foodId;
-    private int numberOfFoodEaten;
+    private int totalNumberOfFoodEaten;
     private int foodQuantity;
 
     public AquariumModelImpl() {
         this.fps = 20;
         this.obstacles = Collections.synchronizedList(new ArrayList<>());
         this.foodId = 0;
-        this.numberOfFoodEaten = 0;
+        this.totalNumberOfFoodEaten = 0;
     }
 
     public void setAquariumDimensions(int width, int height){
@@ -193,7 +193,8 @@ public class AquariumModelImpl implements AquariumModel {
                 this.recentEaters.remove(fish);
                 this.recentEaters.add(fish);
             }
-            this.numberOfFoodEaten++;
+            this.totalNumberOfFoodEaten++;
+            fish.incrementFoodEaten();
             return true;
         }
     }
@@ -257,7 +258,7 @@ public class AquariumModelImpl implements AquariumModel {
 
     @Override
     public int getNumberOfFoodEaten() {
-        return this.numberOfFoodEaten;
+        return this.totalNumberOfFoodEaten;
     }
 
     @Override
@@ -285,6 +286,17 @@ public class AquariumModelImpl implements AquariumModel {
             
             Vector2D dir = Vector2D.fromPositions(fish1.getPosition(), fish2.getPosition());
             return dir.getLength() <= fish1.getSize() / 2 + fish1.getObstacleRange() + fish2.getSize() / 2;
+        }
+    }
+
+    @Override
+    public double getFairnessIndex() {
+        synchronized(this.agents){
+            var mean = 1.0 * this.totalNumberOfFoodEaten / this.agents.size();
+            var variance = this.agents.values().stream()
+                .mapToDouble(f -> Math.pow(f.getNumberOfFoodEaten() - mean, 2))
+                .sum() / (this.agents.size() -1);
+            return Math.exp(-variance);
         }
     }
 }
