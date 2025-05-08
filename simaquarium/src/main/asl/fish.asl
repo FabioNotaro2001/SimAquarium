@@ -1,5 +1,6 @@
 // Beliefs.
 // TODO: pensare a come gestire la fine della simulazione(stop del food drop? Message box?)
+// TODO: ricordati i test.
 energy(500).
 speed(normal).
 steps(1).
@@ -27,6 +28,7 @@ direction(1, 0).
 
 // Plans.
 +!step : energy(E) & E <= 0 <-
+    .wait(not(paused));
     .drop_all_intentions;
     .drop_all_desires;
     die;
@@ -37,6 +39,7 @@ direction(1, 0).
         .wait(1000);
         -digesting;
     }
+    .wait(not(paused));
     if(has_target(_, _)){
         utils.rotate_dir;
     }

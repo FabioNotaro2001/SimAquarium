@@ -130,6 +130,7 @@ public class SimAquariumEnvironment extends Environment {
             return List.of();
         }
         return Stream.of(
+                pausePercept(),
                 foodInRangePercept(agName),
                 closestFoodPercept(agName),
                 obstaclePercept(agName),
@@ -172,6 +173,11 @@ public class SimAquariumEnvironment extends Environment {
             .map(f -> Literal.parseLiteral(String.format("food_elem(%f,%f,%s)", f.getPosition().getX() - fish.getX(), f.getPosition().getY() - fish.getY(), f.getId())))
             .collect(ListTermImpl::new, ListTerm::add, ListTerm::addAll);
         return Stream.of(Literal.parseLiteral(String.format("food(%s)", coordinates))).collect(Collectors.toList());
+    }
+
+    private Collection<Literal> pausePercept() {
+        Literal paused = Literal.parseLiteral("paused");
+        return this.paused ? List.of(paused) : List.of();
     }
 
     private Collection<Literal> closestFoodPercept(String agent) {

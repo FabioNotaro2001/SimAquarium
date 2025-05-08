@@ -27,6 +27,7 @@ direction(1, 0).
 
 // Plans.
 +!step : energy(E) & E <= 0 <-
+    .wait(not(paused));
     .drop_all_intentions;
     .drop_all_desires;
     die;
@@ -37,6 +38,7 @@ direction(1, 0).
         .wait(1000);
         -digesting;
     }
+    .wait(not(paused));
     if(has_target(_, _)){
         utils.rotate_dir;
     }

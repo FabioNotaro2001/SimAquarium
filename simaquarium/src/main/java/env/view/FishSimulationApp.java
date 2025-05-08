@@ -19,7 +19,6 @@ import java.util.Optional;
 import java.util.Set;
 
 public class FishSimulationApp extends JFrame {
-    // TODO: agggiungere bottone pausa che mette in pausa gli agenti e la caduta del cibo, fermando i thread di aggiornamento.
     private DrawPanel drawPanel;
     private JTextArea statsArea;
     private JTextArea eventsArea;
