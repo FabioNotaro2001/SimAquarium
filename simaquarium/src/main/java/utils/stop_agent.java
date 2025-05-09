@@ -12,7 +12,6 @@ public class stop_agent extends DefaultInternalAction{
     public Object execute(TransitionSystem ts, Unifier un, Term[] args) throws Exception {
         RuntimeServices rs = RuntimeServicesFactory.get();
         rs.killAgent(ts.getAgArch().getAgName(), null, 1);
-        System.out.println("L'AGENTE E' STATO UCCISO CORRETTAMENTE!!!!");
         return true;
     }
 }

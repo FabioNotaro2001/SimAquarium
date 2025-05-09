@@ -52,7 +52,7 @@ public class FishSimulationApp extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         drawPanel = new DrawPanel();
-        drawPanel.setBackground(Color.CYAN);
+        drawPanel.setBackground(new Color(0x5abeff));
 
         JPanel buttonPanel = new JPanel();
         JButton stopButton = new JButton("STOP");
@@ -74,11 +74,10 @@ public class FishSimulationApp extends JFrame {
 
         statsArea = new JTextArea();
         statsArea.setEditable(false);
-        statsArea.setPreferredSize(new Dimension(200, 200));
 
         eventsArea = new JTextArea();
         eventsArea.setEditable(false);
-
+        eventsArea.setLineWrap(true);
 
         JPanel statsPanel = new JPanel();
         statsPanel.setLayout(new BorderLayout());
@@ -194,8 +193,6 @@ public class FishSimulationApp extends JFrame {
 
             for (Fish fish : fishList) {
                 g2.setColor(Color.ORANGE);
-                // g.fillOval((int)fish.getX(), (int)fish.getY(), (int)fish.getWeight(),
-                // (int)fish.getWeight()/2);
                 g2.fillOval((int) (fish.getX() - fish.getSize() / 2), (int) (fish.getY() - fish.getSize() / 4), (int)fish.getSize(), (int)(fish.getSize()/2));
 
                 g2.setStroke(dashedStroke);
@@ -210,8 +207,13 @@ public class FishSimulationApp extends JFrame {
                     g2.setColor(Color.BLUE);
                     g2.drawLine((int) fish.getX(), (int) fish.getY(), (int) (fish.getX() + fish.getDirX() * fish.getRange() * 0.8),
                     (int) (fish.getY() + fish.getDirY() * fish.getRange() * 0.8));
-                }
 
+                    g2.setColor(Color.RED);
+                    g2.fillRect((int) (fish.getX() - 20), (int)(fish.getY() + fish.getSize() / 2 + 5), 40, 6);
+                    g2.setColor(Color.GREEN);
+                    g2.fillRect((int) (fish.getX() - 20), (int)(fish.getY() + fish.getSize() / 2 + 5), (int)Utils.map(0, fish.getMaxEnergy(), 0, 40, fish.getEnergy()), 6);
+
+                }
             }
 
             for (Food food : foodList) {

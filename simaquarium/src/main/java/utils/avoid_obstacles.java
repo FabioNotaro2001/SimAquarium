@@ -135,7 +135,6 @@ public class avoid_obstacles extends DefaultInternalAction {
 
                 fishDir = isObstacleToTheLeft(fishDir, obstaclePos) ? fishDir.rotateBy(-angle) : fishDir.rotateBy(angle);
                 rotated = true;
-                // System.out.println("ROTATED: " + fishDir.angle());
             }
             maxLoops--;
         } while (rotated && maxLoops > 0);

@@ -1,39 +1,39 @@
 // Beliefs.
-// TODO: pensare a come gestire la fine della simulazione(stop del food drop? Message box?)
-energy(500).
+// TODO: ricordati i test.
+// TODO: ricordati di togliere il codice dei robot quando non serviranno più.
 speed(normal).
 steps(1).
 direction(1, 0).
 
 // Goals.
-
 !init.
 
 +!init <- 
     utils.agent_init;
     .belief(weight(W));
-    init(W);
+    .belief(energy(E, ME));
+    init(W, E, ME);
     !step.
 
 // Percepts.
 +food(Coordinates) <- 
     utils.find_nearest(Coordinates).    // Eventualmente aggiunge la belief target_food(X, Y)
 
-+close_to_food(F) : energy(E) & E > 0 <-
++close_to_food(F) : energy(E, _) & E > 0 <-
     !eat(F).
 
 -has_target(_, _) <- 
     -+steps(30).
 
 // Plans.
-+!step : energy(E) & E <= 0 <-
++!step : energy(E, _) & E <= 0 <-
     .wait(not(paused));
     .drop_all_intentions;
     .drop_all_desires;
     die;
     utils.stop_agent.
     
-+!step : energy(E) & steps(S) <-
++!step : energy(E, ME) & steps(S) <-
     if (digesting) {
         .wait(1000);
         -digesting;
@@ -47,7 +47,7 @@ direction(1, 0).
         utils.avoid_obstacles(O);
     }
     if(not(has_target(_, _))){
-        if(E >= 200){
+        if(E >= ME / 2){
             !move(normal);
         } else {
             !move(slow);
@@ -59,7 +59,7 @@ direction(1, 0).
             -+steps(S - 1);
         }
     } else {
-        if(E >= 200){
+        if(E >= ME / 2){
             !move(fast);
         } else {
             !move(faster);
@@ -69,13 +69,13 @@ direction(1, 0).
 
 +!move(Speed) : direction(X, Y) <-
     -+speed(Speed);
-    utils.move_towards(X, Y, Speed);
+    utils.move_towards(Speed);
     move_towards(X, Y, Speed).
 
-+!eat(F) : energy(E) <- 
++!eat(F) : energy(E, ME) & food_energy(FE) <- 
     .wait(not(digesting));
     eat(F);
-    -+energy(E + 30);
+    -+energy(E + FE, ME);
     -close_to_food(F);
     +digesting.
 

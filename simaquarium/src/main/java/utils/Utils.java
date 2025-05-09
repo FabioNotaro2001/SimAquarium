@@ -17,6 +17,8 @@ import jason.asSyntax.Term;
 
 public class Utils {
     public static final Random RAND = new Random();
+    public static final double MOVEMENT_MULTIPLIER = 1.0 / 200;
+    public static final double FOOD_ENERGY_INCREASE = 30.0;
 
     public static ListTerm termToList(Term term){
         if(!term.isList()){

@@ -100,11 +100,6 @@ public interface AquariumModel {
             .collect(Collectors.toList());
     }
 
-
-    /** Get the frame-per-second value to be used by any view of the system */
-    long getFPS();
-    void setFPS(long fps);
-
     void moveTowards(String agent, double x, double y, Speed speed);
 
     void sink(String food);
@@ -117,7 +112,7 @@ public interface AquariumModel {
 
     boolean eat(String agent, String foodId);
 
-    void addFish(String agentName, Position position, double weight);
+    void addFish(String agentName, double weight, double energy, double maxEnergy, Position position);
 
     void addFood(Position position);
 

@@ -1,23 +1,24 @@
 package env.model;
 
+import utils.Utils;
+
 public class Fish {
+    private static final int MIN_RANGE = 10;
     private String id;
-    private double weight; // in grams, between 10 and 100
+    private double weight; // in grams, between 30 and 120.
     private double energy;
+    private double maxEnergy;
     private Position position;
     private long numberOfFoodEaten;
     private Vector2D direction = Vector2D.of(1, 0);
 
-    public Fish(String id, double weight, double energy, Position position) {
+    public Fish(String id, double weight, double energy, double maxEnergy, Position position) {
         this.id = id;
         this.weight = weight;
         this.energy = energy;
+        this.maxEnergy = maxEnergy;
         this.position = position;
         this.numberOfFoodEaten = 0;
-    }
-
-    public Fish(String id, double weight, Position position) {
-        this(id, weight, 100, position);
     }
 
     public String getId(){
@@ -45,7 +46,7 @@ public class Fish {
     }
     
     public double getRange() {
-        return 10 + this.weight * 2;
+        return MIN_RANGE + this.weight * 2;
     }
     
     public double getBaseSpeed() {
@@ -69,7 +70,7 @@ public class Fish {
         this.position.setX(this.position.getX() + this.direction.getX() * this.getBaseSpeed() * speed.getSpeed());
         this.position.setY(this.position.getY() + this.direction.getY() * this.getBaseSpeed() * speed.getSpeed());
 
-        this.energy = Math.max(0, this.energy - speed.getSpeed());
+        this.decreaseEnergy(speed.getSpeed() * Utils.MOVEMENT_MULTIPLIER * this.weight);
     }
 
     public static double speedFromWeight(double weight) {
@@ -77,7 +78,7 @@ public class Fish {
     }
 
     public void addEnergy(double energy) {
-        this.energy = Math.min(100, this.energy + energy);
+        this.energy = Math.min(this.maxEnergy, this.energy + energy);
     }
 
     public void decreaseEnergy(double energy) {
@@ -85,15 +86,15 @@ public class Fish {
     }
 
     public double getEatingRange(){
-        return Math.min(10, getRange() / 15);
+        return Math.min(MIN_RANGE, getRange() / 15);
     }
 
     public double getObstacleRange(){
-        return Math.min(10, this.getRange() / 10);
+        return Math.min(MIN_RANGE, this.getRange() / 10);
     }
 
     public double getSize(){
-        return Math.max(10, this.getWeight() / 4);
+        return Math.max(MIN_RANGE, this.getWeight() / 4);
     }
 
     public void incrementFoodEaten() {
@@ -102,5 +103,9 @@ public class Fish {
 
     public long getNumberOfFoodEaten() {
         return this.numberOfFoodEaten;
+    }
+
+    public double getMaxEnergy(){
+        return this.maxEnergy;
     }
 }

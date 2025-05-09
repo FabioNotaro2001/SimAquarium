@@ -14,6 +14,10 @@ import static utils.Utils.termToDouble;
 import env.model.Vector2D;
 
 public class rotate_dir extends DefaultInternalAction {
+    private static final int MIN_WEIGHT = 30;
+    private static final int MAX_WEIGHT = 120;
+    private static final int START_ANGLE = 30;
+    private static final int END_ANGLE = 10;
     @Override
     public Object execute(TransitionSystem ts, Unifier un, Term[] args) throws Exception {
         Agent currentAgent = ts.getAg();
@@ -30,7 +34,7 @@ public class rotate_dir extends DefaultInternalAction {
         Vector2D targetDir = literalToVector2D(hasTargLiteral);
         
         double weight = termToDouble(weightLiteral.getTerm(0));
-        double angle = Math.toRadians(map(30, 120, 30, 10, weight));
+        double angle = Math.toRadians(map(MIN_WEIGHT, MAX_WEIGHT, START_ANGLE, END_ANGLE, weight));
 
         double angleBetween = Vector2D.angleBetween(fishDir, targetDir);
         fishDir = Math.abs(angleBetween) <= angle ? targetDir : fishDir.rotateBy(angle * Math.signum(angleBetween));

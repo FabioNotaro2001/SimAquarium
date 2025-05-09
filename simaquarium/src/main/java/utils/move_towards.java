@@ -13,23 +13,18 @@ import jason.asSyntax.Term;
 public class move_towards extends DefaultInternalAction {
     @Override
     public Object execute(TransitionSystem ts, Unifier un, Term[] args) throws Exception {
-        double x = termToDouble(args[0]);
-        double y = termToDouble(args[1]);
-        Speed speed = termToSpeed(args[2]);
+        Speed speed = termToSpeed(args[0]);
 
         Agent currentAgent = ts.getAg();
         
-        // double distance = Vector2D.fromPositions(Position.zero(), new Position(x, y)).getLength();
-
-        // The fish tries to eat the food
-        // if (distance < 5) {
-        //     currentAgent.addBel(Literal.parseLiteral(String.format("close_to_food(%f, %f)", x, y)));
-        // }
-        
-        Literal energyLiteral = currentAgent.findBel(Literal.parseLiteral("energy(E)"), un);
+        Literal energyLiteral = currentAgent.findBel(Literal.parseLiteral("energy(_, _)"), un);
+        Literal weightLiteral = currentAgent.findBel(Literal.parseLiteral("weight(_)"), un);
         double fishEnergy = termToDouble(energyLiteral.getTerm(0));
+        double fishMaxEnergy = termToDouble(energyLiteral.getTerm(1));
+        double weight = termToDouble(weightLiteral.getTerm(0));
+        fishEnergy -= speed.getSpeed() * Utils.MOVEMENT_MULTIPLIER * weight;
         currentAgent.delBel(energyLiteral);
-        currentAgent.addBel(Literal.parseLiteral(String.format("energy(%f)", Math.max(0, fishEnergy - speed.getSpeed()))));
+        currentAgent.addBel(Literal.parseLiteral(String.format("energy(%f, %f)", Math.max(0, fishEnergy), fishMaxEnergy)));
         Thread.sleep(100);
         return true;
     }

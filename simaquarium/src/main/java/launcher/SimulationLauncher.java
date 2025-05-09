@@ -18,7 +18,6 @@ public class SimulationLauncher extends RunLocalMAS{
                 "\taslSourcePath: \"src/main/asl\";\r\n" + //
                 "}";
     static SimulationLauncher mas;
-    
 
     public SimulationLauncher(){
         super();

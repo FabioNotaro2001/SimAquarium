@@ -6,7 +6,6 @@ public class DomainEvent {
     private Date time;
     private String eventDescription;
 
-
     public DomainEvent(Date time, String description){
         this.time = time;
         this.eventDescription = description;

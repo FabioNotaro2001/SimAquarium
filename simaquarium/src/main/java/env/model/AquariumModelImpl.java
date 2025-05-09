@@ -2,7 +2,10 @@ package env.model;
 
 import java.util.*;
 
+import utils.Utils;
+
 public class AquariumModelImpl implements AquariumModel {
+    private static final int FOOD_OFFSET = 7;
     private final Map<String, Fish> agents = Collections.synchronizedMap(new HashMap<>());
     private final Set<String> stoppedAgents = Collections.synchronizedSet(new HashSet<>());
     private final Map<String, Food> food = Collections.synchronizedMap(new HashMap<>());
@@ -10,13 +13,11 @@ public class AquariumModelImpl implements AquariumModel {
     private List<Obstacle> obstacles;
     private int width;
     private int height;
-    private int fps;
     private long foodId;
     private int totalNumberOfFoodEaten;
     private int foodQuantity;
 
     public AquariumModelImpl() {
-        this.fps = 20;
         this.obstacles = Collections.synchronizedList(new ArrayList<>());
         this.foodId = 0;
         this.totalNumberOfFoodEaten = 0;
@@ -72,16 +73,6 @@ public class AquariumModelImpl implements AquariumModel {
         if (!containsAgent(agent)) {
             throw new IllegalArgumentException("No such an agent: " + agent);
         }
-    }
-
-    @Override
-    public long getFPS() {
-        return this.fps;
-    }
-
-    @Override
-    public void setFPS(long fps) {
-        this.fps = Math.max(Math.min(60, this.fps), 1);
     }
 
     @Override
@@ -186,8 +177,7 @@ public class AquariumModelImpl implements AquariumModel {
                 return false;
             }
             Fish fish = this.agents.get(agent);
-            Food food = this.food.get(foodId);
-            fish.addEnergy(food.DEFAULT_ENERGY);
+            fish.addEnergy(Utils.FOOD_ENERGY_INCREASE);
             this.food.remove(foodId);
             if(!this.recentEaters.add(fish)){
                 this.recentEaters.remove(fish);
@@ -215,9 +205,9 @@ public class AquariumModelImpl implements AquariumModel {
     }
 
     @Override
-    public void addFish(String agentName, Position position, double weight) {
+    public void addFish(String agentName, double weight, double energy, double maxEnergy, Position position) {
         synchronized(this.agents){
-            this.agents.put(agentName, new Fish(agentName, weight, position));
+            this.agents.put(agentName, new Fish(agentName, weight, energy, maxEnergy, position));
         }
     }
 
@@ -225,7 +215,7 @@ public class AquariumModelImpl implements AquariumModel {
     public void addFood(Position position) {
         synchronized(this.food){
             String id = "food" + this.foodId++;
-            this.food.put(id, new Food(id, position, height-7));
+            this.food.put(id, new Food(id, position, height - FOOD_OFFSET));
             if(foodId < 0){
                 foodId = 0;
             }
@@ -295,8 +285,8 @@ public class AquariumModelImpl implements AquariumModel {
             var mean = 1.0 * this.totalNumberOfFoodEaten / this.agents.size();
             var variance = this.agents.values().stream()
                 .mapToDouble(f -> Math.pow(f.getNumberOfFoodEaten() - mean, 2))
-                .sum() / (this.agents.size() -1);
-            return Math.exp(-variance);
+                .sum() / (this.agents.size() - 1);
+            return Math.exp(-variance / 3);
         }
     }
 }

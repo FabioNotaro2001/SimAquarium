@@ -44,7 +44,7 @@ public class SimAquariumEnvironment extends Environment {
     public static final Literal moveTowards = Literal.parseLiteral("move_towards(X, Y, Speed)");
     public static final Literal eat = Literal.parseLiteral("eat(Food)");
     public static final Literal die = Literal.parseLiteral("die");
-    public static final Literal init = Literal.parseLiteral("init(Weight)");
+    public static final Literal init = Literal.parseLiteral("init(Weight, Energy, MaxEnergy)");
 
     private AquariumModel model;
     FishSimulationApp view;
@@ -87,7 +87,6 @@ public class SimAquariumEnvironment extends Environment {
         this.paused = false;
         for (int i = 0; i < this.numberOfObstacles; i++){
             this.model.addObstacle(this.getRandomPositionInsideAquarium(), (RAND.nextDouble() * 0.1 + 0.02) * this.model.getHeight());
-            // this.model.addObstacle(this.getRandomPositionInsideAquarium(), 25);
         }
         this.foodSimulationThread = new Thread(new Runnable(){
             @Override
@@ -216,7 +215,9 @@ public class SimAquariumEnvironment extends Environment {
             }
             try {
                 double weight = termToDouble(un.get("Weight"));
-                this.model.addFish(ag, this.getRandomPositionInsideAquarium(), weight);
+                double energy = termToDouble(un.get("Energy"));
+                double maxEnergy = termToDouble(un.get("MaxEnergy"));
+                this.model.addFish(ag,  weight, energy, maxEnergy, this.getRandomPositionInsideAquarium());
                 notifyModelChangedToView(Optional.empty());
                 return true;
             } catch (NoValueException e) {
@@ -244,8 +245,11 @@ public class SimAquariumEnvironment extends Environment {
             String foodId;
             try {
                 foodId = termToString(un.get("Food"));
-                notifyModelChangedToView(Optional.of(DomainEvent.of(String.format("%s has eaten", ag))));
-                return this.model.eat(ag, foodId);
+                boolean eaten = this.model.eat(ag, foodId);
+                if(eaten){
+                    notifyModelChangedToView(Optional.of(DomainEvent.of(String.format("%s has eaten (%d pcs)", ag, this.model.getAgent(ag).getNumberOfFoodEaten()))));
+                }
+                return eaten;
             } catch (NoValueException e) {
                 e.printStackTrace();
                 return false;
@@ -255,31 +259,6 @@ public class SimAquariumEnvironment extends Environment {
             notifyModelChangedToView(Optional.of(DomainEvent.of(String.format("%s is dead", ag))));
             return true;
         }
-        // initializeAgentIfNeeded(ag);
-        // final boolean result;
-        // if (RAND.nextDouble() < model.getSlideProbability()) {
-        //     result = false;
-        // } else if (action.equals(moveForward)) {
-        //     result = model.moveAgent(ag, 1, FORWARD);
-        // } else if (action.equals(moveRight)) {
-        //     result = model.moveAgent(ag, 1, RIGHT);
-        // } else if (action.equals(moveBackward)) {
-        //     result = model.moveAgent(ag, 1, BACKWARD);
-        // } else if (action.equals(moveLeft)) {
-        //     result = model.moveAgent(ag, 1, LEFT);
-        // } else if (action.equals(moveRandom)) {
-        //     Direction rd = Direction.random();
-        //     result = model.moveAgent(ag, 1, rd);
-        // } else {
-        //     RuntimeException e = new IllegalArgumentException("Cannot handle action: " + action);
-        //     logger.warning(e.getMessage());
-        //     throw e;
-        // }
-        // try {
-        //     Thread.sleep(1000L / model.getFPS());
-        // } catch (InterruptedException ignored) { }
-        // notifyModelChangedToView();
-        // return result;
         notifyModelChangedToView(Optional.empty());
         return false; // Placeholder, replace with actual action logic
     }
