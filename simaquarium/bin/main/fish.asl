@@ -1,4 +1,6 @@
 // Beliefs.
+// TODO: ricordati i test.
+// TODO: ricordati di togliere il codice dei robot quando non serviranno più.
 speed(normal).
 steps(1).
 direction(1, 0).
