@@ -2,10 +2,22 @@
 speed(normal).
 steps(1).
 direction(1, 0).
+-has_target(_, _) <- 
+    -+steps(30).
+
 
 // Goals.
 !init.
 
+
+// Percepts.
++food(FS) <- 
+    utils.find_nearest(FS).    // Eventualmente aggiunge la belief target_food(X, Y)
+
++close_to_food(F) : energy(E, _) & E > 0 <-
+    !eat(F).
+
+// Plans.
 +!init <- 
     utils.agent_init;
     .belief(weight(W));
@@ -13,17 +25,6 @@ direction(1, 0).
     init(W, E, ME);
     !step.
 
-// Percepts.
-+food(Coordinates) <- 
-    utils.find_nearest(Coordinates).    // Eventualmente aggiunge la belief target_food(X, Y)
-
-+close_to_food(F) : energy(E, _) & E > 0 <-
-    !eat(F).
-
--has_target(_, _) <- 
-    -+steps(30).
-
-// Plans.
 +!step : energy(E, _) & E <= 0 <-
     .wait(not(paused));
     .drop_all_intentions;
