@@ -23,6 +23,7 @@ import env.model.AquariumModel;
 import env.model.AquariumModelImpl;
 import env.model.DomainEvent;
 import env.model.Fish;
+import env.model.Pair;
 import env.model.Position;
 import env.model.Speed;
 import env.model.Vector2D;
@@ -99,7 +100,7 @@ public class SimAquariumEnvironment extends Environment {
                         untilNextFoodDrop -= time-lastCycle;
                         lastCycle = time;
                         if (untilNextFoodDrop <= 0) {
-                            untilNextFoodDrop += 10000;
+                            untilNextFoodDrop += 20000000;
                             for(int i = 0; i < foodQuantity; i++){
                                 model.addFood(new Position((RAND.nextDouble() * 0.8 + 0.1) * model.getWidth(), 0));
                             }
@@ -181,6 +182,7 @@ public class SimAquariumEnvironment extends Environment {
 
     private Collection<Literal> closestFoodPercept(String agent) {
         var foodOpt = this.model.getClosestFoodThatCanBeEaten(agent);
+        model.addEventToList(new Pair<String,String>(agent, "food_percept"));
         return foodOpt.isPresent() ? List.of(Literal.parseLiteral(String.format("close_to_food(%s)", foodOpt.get().getId()))) : List.of();
     }
 

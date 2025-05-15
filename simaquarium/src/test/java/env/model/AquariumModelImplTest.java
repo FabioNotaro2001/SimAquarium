@@ -174,14 +174,6 @@ public class AquariumModelImplTest {
     }
 
     @Test
-    public void testIsAgentStopped() {
-        AquariumModelImpl model = new AquariumModelImpl();
-        model.addFish("Fish1", 50, 100, 200, new Position(10, 20));
-        model.removeAgent("Fish1");
-        assertTrue(model.isAgentStopped("Fish1"));
-    }
-
-    @Test
     public void testIsFoodWithinObstacle() {
         AquariumModelImpl model = new AquariumModelImpl();
         model.addFood(new Position(10, 20));

@@ -105,7 +105,13 @@ public class FishSimulationApp extends JFrame {
                 JOptionPane.QUESTION_MESSAGE
             );
 
+            System.out.print(nFishAlive);
+            if(nFishAlive==0){
+                model.verifyEvents();
+            }
+
             if (response == JOptionPane.YES_OPTION) {
+                
                 SimulationLauncher.getLocalMAS().finish(0, true, 0);
             }
         });

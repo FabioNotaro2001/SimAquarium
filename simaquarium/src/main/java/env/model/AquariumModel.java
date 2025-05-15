@@ -48,8 +48,6 @@ public interface AquariumModel {
 
     void removeAgent(String name);
 
-    boolean isAgentStopped(String name);
-
     boolean isAgentCloseToFood(String agent, String food);
 
     boolean isFoodWithinObstacle(String food);
@@ -123,4 +121,8 @@ public interface AquariumModel {
     void setFoodQuantity(int amount);
 
     double getFairnessIndex();
+
+    void verifyEvents();
+
+    void addEventToList(Pair<String, String> event);
 }

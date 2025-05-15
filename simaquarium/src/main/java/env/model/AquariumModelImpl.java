@@ -7,9 +7,9 @@ import utils.Utils;
 public class AquariumModelImpl implements AquariumModel {
     private static final int FOOD_OFFSET = 7;
     private final Map<String, Fish> agents = Collections.synchronizedMap(new HashMap<>());
-    private final Set<String> stoppedAgents = Collections.synchronizedSet(new HashSet<>());
     private final Map<String, Food> food = Collections.synchronizedMap(new HashMap<>());
     private final Set<Fish> recentEaters = Collections.synchronizedSet(new HashSet<>());
+    private final List<Pair<String, String>> events = Collections.synchronizedList(new ArrayList<>());
     private List<Obstacle> obstacles;
     private int width;
     private int height;
@@ -45,8 +45,8 @@ public class AquariumModelImpl implements AquariumModel {
     public void removeAgent(String name){
         synchronized(this.agents){
             this.ensureAgentExists(name);
-            this.agents.remove(name);
-            this.stoppedAgents.add(name);
+            this.agents.remove(name);        
+            this.addEventToList(new Pair<>(name, "die"));
         }
     }
 
@@ -63,10 +63,6 @@ public class AquariumModelImpl implements AquariumModel {
     @Override
     public boolean isPositionInside(double x, double y) {
         return x >= 0 && x < width && y >= 0 && y < height ;
-    }
-
-    public boolean isAgentStopped(String agent){
-        return this.stoppedAgents.contains(agent);
     }
 
     private void ensureAgentExists(String agent) {
@@ -177,6 +173,7 @@ public class AquariumModelImpl implements AquariumModel {
                 return false;
             }
             Fish fish = this.agents.get(agent);
+            this.addEventToList(new Pair<>(agent, "eat"));
             fish.addEnergy(Utils.FOOD_ENERGY_INCREASE);
             this.food.remove(foodId);
             if(!this.recentEaters.add(fish)){
@@ -185,6 +182,7 @@ public class AquariumModelImpl implements AquariumModel {
             }
             this.totalNumberOfFoodEaten++;
             fish.incrementFoodEaten();
+            this.addEventToList(new Pair<>(agent, "digest"));
             return true;
         }
     }
@@ -207,6 +205,7 @@ public class AquariumModelImpl implements AquariumModel {
     @Override
     public void addFish(String agentName, double weight, double energy, double maxEnergy, Position position) {
         synchronized(this.agents){
+            this.addEventToList(new Pair<>(agentName, "add"));
             this.agents.put(agentName, new Fish(agentName, weight, energy, maxEnergy, position));
         }
     }
@@ -287,6 +286,52 @@ public class AquariumModelImpl implements AquariumModel {
                 .mapToDouble(f -> Math.pow(f.getNumberOfFoodEaten() - mean, 2))
                 .sum() / (this.agents.size() - 1);
             return Math.exp(-variance / 3);
+        }
+    }
+
+    @Override
+    public void verifyEvents() {
+        synchronized (this.events) {
+            Map<String, List<String>> groupedEvents = new HashMap<>();
+            for (Pair<String, String> event : events) {
+                groupedEvents.computeIfAbsent(event.getFirst(), k -> new ArrayList<>()).add(event.getSecond());
+            }
+
+            for (Map.Entry<String, List<String>> entry : groupedEvents.entrySet()) {
+                String fishId = entry.getKey();
+                List<String> fishEvents = entry.getValue();
+
+                // Verifica che l'evento "init" sia il primo
+                assert fishEvents.get(0).equals("addaaa") :
+                    "The first event for fish " + fishId + " is not 'init'";
+
+                // Verifica che l'ultimo evento sia "die"
+                assert fishEvents.get(fishEvents.size() - 1).equals("die") :
+                    "The last event for fish " + fishId + " is not 'die'";
+
+                // Verifica che ogni "eat" sia seguito da "digest"
+                for (int i = 0; i < fishEvents.size() - 1; i++) {
+                    if (fishEvents.get(i).equals("eat")) {
+                        assert fishEvents.get(i + 1).equals("digest") :
+                            "The event 'digest' does not follow 'eat' for fish " + fishId;
+                    }
+                }
+
+                // Verifica che ogni "eat" sia preceduto da "food_percept"
+                for (int i = 1; i < fishEvents.size(); i++) {
+                    if (fishEvents.get(i).equals("eat")) {
+                        assert fishEvents.get(i - 1).equals("food_percept") :
+                            "The event 'eat' is not preceded by 'food_percept' for fish " + fishId;
+                    }
+                }
+            }
+        }
+    }
+
+    @Override
+    public void addEventToList(Pair<String, String> event) {
+        synchronized (this.events) {
+            this.events.add(event);
         }
     }
 }
