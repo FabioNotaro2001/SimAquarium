@@ -5,10 +5,8 @@ direction(1, 0).
 -has_target(_, _) <- 
     -+steps(30).
 
-
 // Goals.
 !init.
-
 
 // Percepts.
 +food(FS) <- 

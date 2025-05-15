@@ -281,16 +281,23 @@ public class AquariumModelImpl implements AquariumModel {
     @Override
     public double getFairnessIndex() {
         synchronized(this.agents){
+            if(this.agents.size() < 2){
+                return Double.NaN;
+            }
+            long maxNumberOfFoodEaten = this.agents.values().stream().mapToLong(f -> f.getNumberOfFoodEaten()).max().getAsLong();
+            if(maxNumberOfFoodEaten == 0){
+                return 1;
+            }
             var mean = 1.0 * this.totalNumberOfFoodEaten / this.agents.size();
             var variance = this.agents.values().stream()
                 .mapToDouble(f -> Math.pow(f.getNumberOfFoodEaten() - mean, 2))
                 .sum() / (this.agents.size() - 1);
-            return Math.exp(-variance / 3);
+            return Math.exp(-variance / (3 * maxNumberOfFoodEaten));
         }
     }
 
     @Override
-    public void verifyEvents() {
+    public String verifyEvents() {
         synchronized (this.events) {
             Map<String, List<String>> groupedEvents = new HashMap<>();
             for (Pair<String, String> event : events) {
@@ -298,34 +305,33 @@ public class AquariumModelImpl implements AquariumModel {
             }
 
             for (Map.Entry<String, List<String>> entry : groupedEvents.entrySet()) {
-                String fishId = entry.getKey();
                 List<String> fishEvents = entry.getValue();
+                if(!fishEvents.get(0).equals("add")){
+                    return "first event was not init";
+                }
 
-                // Verifica che l'evento "init" sia il primo
-                assert fishEvents.get(0).equals("addaaa") :
-                    "The first event for fish " + fishId + " is not 'init'";
-
-                // Verifica che l'ultimo evento sia "die"
-                assert fishEvents.get(fishEvents.size() - 1).equals("die") :
-                    "The last event for fish " + fishId + " is not 'die'";
-
-                // Verifica che ogni "eat" sia seguito da "digest"
+                if(!fishEvents.get(fishEvents.size() - 1).equals("die")){
+                    return "last event was not die";
+                }
+                
                 for (int i = 0; i < fishEvents.size() - 1; i++) {
                     if (fishEvents.get(i).equals("eat")) {
-                        assert fishEvents.get(i + 1).equals("digest") :
-                            "The event 'digest' does not follow 'eat' for fish " + fishId;
+                        if(!fishEvents.get(i + 1).equals("digest")){
+                            return "a digest event does not follow an eat event";
+                        }
                     }
                 }
 
-                // Verifica che ogni "eat" sia preceduto da "food_percept"
                 for (int i = 1; i < fishEvents.size(); i++) {
                     if (fishEvents.get(i).equals("eat")) {
-                        assert fishEvents.get(i - 1).equals("food_percept") :
-                            "The event 'eat' is not preceded by 'food_percept' for fish " + fishId;
+                        if(!fishEvents.get(i - 1).equals("food_percept")){
+                            return "a food_percept event does not precede an eat event";
+                        }
                     }
                 }
             }
         }
+        return "";
     }
 
     @Override

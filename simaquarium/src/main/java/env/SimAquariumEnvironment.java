@@ -100,7 +100,7 @@ public class SimAquariumEnvironment extends Environment {
                         untilNextFoodDrop -= time-lastCycle;
                         lastCycle = time;
                         if (untilNextFoodDrop <= 0) {
-                            untilNextFoodDrop += 20000000;
+                            untilNextFoodDrop += 10000;
                             for(int i = 0; i < foodQuantity; i++){
                                 model.addFood(new Position((RAND.nextDouble() * 0.8 + 0.1) * model.getWidth(), 0));
                             }

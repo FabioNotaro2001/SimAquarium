@@ -105,13 +105,24 @@ public class FishSimulationApp extends JFrame {
                 JOptionPane.QUESTION_MESSAGE
             );
 
-            System.out.print(nFishAlive);
-            if(nFishAlive==0){
-                model.verifyEvents();
-            }
-
             if (response == JOptionPane.YES_OPTION) {
-                
+                if(nFishAlive == 0){
+                    String resultEventTest = model.verifyEvents();
+                    if(resultEventTest == ""){
+                        JOptionPane.showMessageDialog(
+                            null,
+                            "Event tests run successfully!",
+                            "EVENT TESTS RESULT",
+                            JOptionPane.INFORMATION_MESSAGE
+                        );
+                    } else{
+                        JOptionPane.showMessageDialog(null,
+                            "Event tests run unsuccessfully: " + resultEventTest + "!",
+                            "EVENT TESTS RESULT",
+                            JOptionPane.ERROR_MESSAGE
+                        );
+                    }
+                }
                 SimulationLauncher.getLocalMAS().finish(0, true, 0);
             }
         });
@@ -172,10 +183,11 @@ public class FishSimulationApp extends JFrame {
 
     private void updateStats() {
         SwingUtilities.invokeLater(() -> {
+            double fairnessIdx = this.model.getFairnessIndex();
             statsArea.setText("Number of fish: " + this.nFishAlive + "\n"
                         + "Survival rate: " + Math.floor(1.0 * this.nFishAlive / this.nMaxFish * 100) + "%\n"
                         + "Food pieces eaten: " + this.lastKnownNumberOfFoodEaten + "\n"
-                        + "Fairness index: " + String.format("%.2f", this.model.getFairnessIndex()) + "\n");
+                        + "Fairness index: " + (Double.isNaN(fairnessIdx) ? "---" : String.format("%.2f", this.model.getFairnessIndex())) + "\n");
             statsArea.update(statsArea.getGraphics());
         });
     }

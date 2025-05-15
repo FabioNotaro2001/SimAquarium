@@ -122,7 +122,7 @@ public interface AquariumModel {
 
     double getFairnessIndex();
 
-    void verifyEvents();
+    String verifyEvents();
 
     void addEventToList(Pair<String, String> event);
 }

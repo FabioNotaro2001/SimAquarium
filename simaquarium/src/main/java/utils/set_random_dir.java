@@ -17,7 +17,7 @@ public class set_random_dir extends DefaultInternalAction {
         Agent currentAgent = ts.getAg();
 
         var lit = currentAgent.findBel(Literal.parseLiteral("direction(_, _)"), un);
-        Vector2D fishDir = literalToVector2D(lit).rotateBy(Utils.RAND.nextDouble() * Math.PI / 4);
+        Vector2D fishDir = literalToVector2D(lit).rotateBy((Utils.RAND.nextDouble() * 2 - 1) * Math.PI / 4);
         
         currentAgent.delBel(lit);
         currentAgent.addBel(Literal.parseLiteral(String.format("direction(%f, %f)", fishDir.getX(), fishDir.getY())));

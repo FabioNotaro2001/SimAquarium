@@ -8,7 +8,6 @@ dependencyResolutionManagement {
 
 rootProject.name = "ise-lab-code-jason"
 
-include("robots")
 include("simaquarium")
 
 develocity {
