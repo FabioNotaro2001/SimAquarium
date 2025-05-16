@@ -13,11 +13,18 @@ import static utils.Utils.termToDouble;
 
 import env.model.Vector2D;
 
+/**
+ * The `rotate_dir` class is a custom internal action for agents in the simulation.
+ * It adjusts the agent's direction to rotate towards its target based on its weight.
+ * The rotation angle is dynamically calculated, allowing heavier agents to rotate more slowly
+ * and lighter agents to rotate more quickly. This ensures realistic movement behavior in the simulation.
+ */
 public class rotate_dir extends DefaultInternalAction {
     private static final int MIN_WEIGHT = 30;
     private static final int MAX_WEIGHT = 120;
     private static final int START_ANGLE = 30;
     private static final int END_ANGLE = 10;
+
     @Override
     public Object execute(TransitionSystem ts, Unifier un, Term[] args) throws Exception {
         Agent currentAgent = ts.getAg();

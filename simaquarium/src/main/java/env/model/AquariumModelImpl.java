@@ -23,6 +23,7 @@ public class AquariumModelImpl implements AquariumModel {
         this.totalNumberOfFoodEaten = 0;
     }
 
+    @Override
     public void setAquariumDimensions(int width, int height){
         this.width = width;
         this.height = height;
@@ -42,6 +43,7 @@ public class AquariumModelImpl implements AquariumModel {
         }
     }
 
+    @Override
     public void removeAgent(String name){
         synchronized(this.agents){
             this.ensureAgentExists(name);

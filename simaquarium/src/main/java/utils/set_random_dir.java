@@ -11,7 +11,14 @@ import static utils.Utils.literalToVector2D;
 
 import env.model.Vector2D;
 
+/**
+ * The `set_random_dir` class is a custom internal action for agents in the simulation.
+ * It sets a random direction for the agent by rotating its current direction by a random angle.
+ * The random angle is calculated within a range of ±45 degrees (π/4 radians).
+ * This action is used to simulate unpredictable movement behavior in the simulation.
+ */
 public class set_random_dir extends DefaultInternalAction {
+
     @Override
     public Object execute(TransitionSystem ts, Unifier un, Term[] args) throws Exception {
         Agent currentAgent = ts.getAg();

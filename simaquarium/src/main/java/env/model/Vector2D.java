@@ -20,6 +20,13 @@ public final class Vector2D {
         return new Vector2D(x, y);
     }
     
+    /**
+     * Creates a new Vector2D from an angle in radians.
+     * The resulting vector will have a length of 1.
+     *
+     * @param angle the angle in radians
+     * @return a new Vector2D instance
+     */
     public static Vector2D of(double angle) {
         return new Vector2D(Math.cos(angle), Math.sin(angle));
     }
@@ -49,6 +56,12 @@ public final class Vector2D {
         return y;
     }
 
+    
+    /**
+     * Calculates the length (magnitude) of the vector.
+     *
+     * @return the length of the vector
+     */
     public double getLength() {
         return Math.sqrt(Math.pow(this.x, 2) + Math.pow(this.y, 2));
     }
@@ -145,6 +158,8 @@ public final class Vector2D {
 
     /**
      * Returns the angle between the vector and the x-axis.
+     *
+     * @return the angle in radians
      */
     public double angle() {
         return Math.atan2(y, x);
@@ -160,10 +175,20 @@ public final class Vector2D {
         return length == 0 ? zero : new Vector2D(this.x / length, this.y / length);
     }
 
+    /**
+     * Flips the vector horizontally (inverts the y component).
+     *
+     * @return a new Vector2D flipped horizontally
+     */
     public Vector2D flipHorizontally(){
         return new Vector2D(x, -y);
     }
     
+    /**
+     * Flips the vector vertically (inverts the x component).
+     *
+     * @return a new Vector2D flipped vertically
+     */
     public Vector2D flipVertically(){
         return new Vector2D(-x, y);
     }
@@ -184,6 +209,13 @@ public final class Vector2D {
      */
     public static Vector2D zero = new Vector2D(0, 0);
 
+    /**
+     * Calculates the angle between two vectors.
+     *
+     * @param v1 the first vector
+     * @param v2 the second vector
+     * @return the angle in radians between the two vectors
+     */
     public static double angleBetween(Vector2D v1, Vector2D v2){
         double angle = v1.angle();
         return v2.rotateBy(-angle).angle();

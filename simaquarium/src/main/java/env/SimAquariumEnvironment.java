@@ -29,11 +29,6 @@ import env.model.Speed;
 import env.model.Vector2D;
 import env.view.FishSimulationApp;
 
-/**
- * Any Jason environment "entry point" should extend
- * jason.environment.Environment class to override methods init(),
- * updatePercepts() and executeAction().
- */
 public class SimAquariumEnvironment extends Environment {
     private static final Random RAND = new Random();
     private Thread foodSimulationThread;
@@ -125,7 +120,6 @@ public class SimAquariumEnvironment extends Environment {
 
     @Override
     public Collection<Literal> getPercepts(String agName) {
-        // Percept cibo in range, percept per il cibo abbastanza vicino, percept per gli ostacoli in range
         if(!this.model.containsAgent(agName)){
             return List.of();
         }
@@ -204,10 +198,6 @@ public class SimAquariumEnvironment extends Environment {
         return Stream.of(Literal.parseLiteral(String.format("obstacles(%s)", coords))).collect(Collectors.toList());
     }
 
-    /**
-     * The <code>boolean</code> returned represents the action "move"
-     * (success/failure)
-     */
     @Override
     public boolean executeAction(final String ag, final Structure action) {
         Unifier un = new Unifier();
@@ -262,7 +252,7 @@ public class SimAquariumEnvironment extends Environment {
             return true;
         }
         notifyModelChangedToView(Optional.empty());
-        return false; // Placeholder, replace with actual action logic
+        return false;
     }
 
     public void setPaused(boolean paused) {

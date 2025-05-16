@@ -7,9 +7,14 @@ import jason.asSemantics.Unifier;
 import jason.asSyntax.Literal;
 import jason.asSyntax.Term;
 
+/**
+ * The `agent_init` class is a custom internal action for initializing an agent in the simulation.
+ * It sets up the agent's initial beliefs, such as weight, size, energy, and food energy.
+ */
 public class agent_init extends DefaultInternalAction {
     private static final int MIN_WEIGHT = 30;
     private static final int MAX_WEIGHT = 120;
+
     @Override
     public Object execute(TransitionSystem ts, Unifier un, Term[] args) throws Exception {
         Agent currentAgent = ts.getAg();

@@ -19,6 +19,12 @@ import env.model.Direction;
 import env.model.Position;
 import env.model.Vector2D;
 
+/**
+ * The `check_aquarium_borders` class is a custom internal action for agents in the simulation.
+ * It allows agents to detect when they are near the borders of the aquarium and adjust their
+ * direction to avoid crossing the borders. The class uses vector calculations to determine
+ * the agent's position and direction relative to the borders.
+ */
 public class check_aquarium_borders extends DefaultInternalAction {
     @Override
     public Object execute(TransitionSystem ts, Unifier un, Term[] args) throws Exception {

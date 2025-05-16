@@ -72,14 +72,19 @@ public class Position {
         this.y = newY;
     }
 
+    /**
+     * Adds the specified value to the x-coordinate of the position.
+     *
+     * @param newX the value to add to the x-coordinate
+     */
     public void addX(double newX){
         this.x += newX;
     }
     
     /**
-     * Sets the y-coordinate of the position to the specified value.
+     * Adds the specified value to the y-coordinate of the position.
      *
-     * @param newY the new y-coordinate value to set
+     * @param newY the value to add to the y-coordinate
      */
     public void addY(double newY){
         this.y += newY;
