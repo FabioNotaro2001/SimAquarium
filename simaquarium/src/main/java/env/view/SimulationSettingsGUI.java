@@ -47,10 +47,14 @@ public class SimulationSettingsGUI {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
+                    var inputInserted = Integer.parseInt(agentsField.getText());
+                    if(inputInserted < 1){
+                        JOptionPane.showMessageDialog(null, "Please, insert a valid number of agents!","ERROR",JOptionPane.ERROR_MESSAGE);
+                        return;
+                    }
                     SimulationLauncher.launchNew(Integer.parseInt(agentsField.getText()), foodComboBox.getSelectedItem().toString(), obstaclesComboBox.getSelectedItem().toString());
                     frame.dispose();
                 } catch (NumberFormatException | IOException | JasonException e1 ) {
-                    e1.printStackTrace();
                     JOptionPane.showMessageDialog(null, e1.getMessage(),"ERROR",JOptionPane.ERROR_MESSAGE);
                 } 
             }
