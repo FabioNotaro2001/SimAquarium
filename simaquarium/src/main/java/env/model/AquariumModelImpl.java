@@ -269,7 +269,9 @@ public class AquariumModelImpl implements AquariumModel {
             Fish fish2 = this.agents.get(agent2);
     
             ensureAgentExists(agent1);
-            ensureAgentExists(agent2);
+            if (fish2 == null) {
+                return false;
+            }
 
             if(agent1 == agent2){
                 return true;

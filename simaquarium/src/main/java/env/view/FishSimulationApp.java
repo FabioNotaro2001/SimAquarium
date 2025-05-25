@@ -1,6 +1,7 @@
 package env.view;
 
 import javax.swing.*;
+import javax.swing.text.DefaultCaret;
 
 import env.SimAquariumEnvironment;
 import env.model.AquariumModel;
@@ -14,6 +15,7 @@ import launcher.SimulationLauncher;
 import utils.Utils;
 
 import java.awt.*;
+import java.awt.font.TextLayout.CaretPolicy;
 import java.text.SimpleDateFormat;
 import java.util.Optional;
 import java.util.Set;
@@ -78,6 +80,9 @@ public class FishSimulationApp extends JFrame {
         eventsArea = new JTextArea();
         eventsArea.setEditable(false);
         eventsArea.setLineWrap(true);
+
+        DefaultCaret caret = (DefaultCaret)eventsArea.getCaret();
+        caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
 
         JPanel statsPanel = new JPanel();
         statsPanel.setLayout(new BorderLayout());
