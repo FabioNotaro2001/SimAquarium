@@ -1,6 +1,6 @@
 # SimAquarium 🐟
 
-SimAquarium is a multi-agent system that simulates an intelligent aquarium, developed using **Java**, **JADE**, and **JASON**. The system leverages **BDI agent architecture** to model autonomous fish agents with their own beliefs, desires, and intentions.
+SimAquarium is a multi-agent system that simulates an intelligent aquarium, developed using **Java**, **JADE** and **JASON**. The system leverages **BDI agent architecture** to model autonomous fish agents with their own beliefs, desires, and intentions.
 
 This project was developed as part of an Intelligent Systems Engineering course.
 
